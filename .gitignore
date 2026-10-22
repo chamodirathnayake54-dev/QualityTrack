@@ -1,5 +1,6 @@
 build/
 dist/
+node_modules/
 .env*
 !.env.example
 .demo-postgres/
@@ -10,3 +11,5 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 .coverage
+frontend/test-results/
+frontend/playwright-report/
