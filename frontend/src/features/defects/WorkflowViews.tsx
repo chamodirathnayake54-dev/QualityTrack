@@ -8,8 +8,7 @@ import { ReadFeedback } from './ReadFeedback';
 export function InvestigationSummary() {
   /** Explain the requested transition; the controller and API own acceptance. */
   return <>
-    <p>Requested status: Under Investigation</p>
-    <p>The server decides permissions, recorded-cause presence and transition legality. Entering this screen does not change status.</p>
+    <p>You are about to move this defect to Under Investigation. At least one cause must be recorded first. Nothing changes until you confirm.</p>
   </>;
 }
 
@@ -17,7 +16,7 @@ export function InvestigationSummary() {
 export function AssociatedActionList({ actions }: { actions: Action[] }) {
   /** Render confirmed action fields without deriving eligibility or effectiveness. */
   return <ul className="space-y-3">{actions.map((action) => <li key={action.id}>
-    {action.description} · {action.owner_ref} · {action.due_date} · {action.status}
+    {action.description} · {action.due_date} · {action.status}
   </li>)}</ul>;
 }
 

@@ -61,6 +61,8 @@ export function useWorkflow(kind: 'causes' | 'investigation' | 'actions') {
   });
   const [errors, setErrors] = useState<Errors>({});
   const [message, setMessage] = useState('');
+  const [succeeded, setSucceeded] = useState(false);
+  const [moved, setMoved] = useState(false);
   const [reviewed, setReviewed] = useState<string | null>(null);
   const [reviewContext, setReviewContext] = useState('');
   const context = JSON.stringify([record.parent.data, causes.data, history.data]);
@@ -90,12 +92,13 @@ export function useWorkflow(kind: 'causes' | 'investigation' | 'actions') {
     setReviewContext(checked ? context : '');
   };
   const submit = async () => {
-    if (lock.current || aggregatePending) return;
+    if (lock.current || aggregatePending || (kind === 'investigation' &&
+        (moved || record.parent.data?.data.status === 'Under Investigation'))) return;
     let feedback: Errors = {};
     if (kind === 'causes') feedback = validateCause(text);
     if (kind === 'actions') feedback = validateAction(draft, owners.data?.items ?? []);
     if (kind === 'investigation') {
-      if (!record.defectId || !strong(record.parent.data?.etag)) feedback.revision = 'A valid reviewed record revision is required. Refresh the record.';
+      if (!record.defectId || !strong(record.parent.data?.etag)) feedback.revision = 'Reload latest details, then check them before trying again.';
       else if (!reviewReady || reviewed !== record.parent.data?.etag || reviewContext !== context) feedback.review = 'Review the current record and confirm before submitting.';
     }
     setErrors(feedback);
@@ -103,7 +106,22 @@ export function useWorkflow(kind: 'causes' | 'investigation' | 'actions') {
         (kind === 'actions' && !owners.isSuccess)) return;
     lock.current = true;
     setMessage('');
+    setSucceeded(false);
     try {
+      if (kind === 'causes') {
+        // Inspect every saved cause, including those not yet displayed.
+        const normalize = (value: string) => value.trim().replace(/\s+/g, ' ').toLowerCase();
+        let duplicate = false;
+        let cursor: string | null = null;
+        do {
+          const page: Page<Cause> = (await record.client.request<Page<Cause>>(
+            `${record.base}/causes?${new URLSearchParams({ limit: '50', ...(cursor ? { cursor } : {}) })}`,
+          )).data;
+          duplicate = page.items.some((cause) => normalize(cause.text) === normalize(text));
+          cursor = page.next_cursor;
+        } while (cursor && !duplicate);
+        if (duplicate && !window.confirm('This cause is already recorded. Record it again?')) return;
+      }
       const result = await mutation.mutateAsync({
         path: `${record.base}/${kind === 'investigation' ? 'transitions' : kind}`,
         body: kind === 'causes' ? { text: text.trim() }
@@ -115,7 +133,9 @@ export function useWorkflow(kind: 'causes' | 'investigation' | 'actions') {
       });
       // Preserve exact response metadata separately; only a full parent read can be reviewed.
       queryClient.setQueryData(['workflow-result', record.identity?.ref, record.defectId], result);
-      setMessage(kind === 'causes' ? 'Cause recorded' : kind === 'actions' ? 'Corrective action added' : 'Investigation transition confirmed');
+      setSucceeded(true);
+      if (kind === 'investigation') setMoved(true);
+      setMessage(kind === 'causes' ? 'Cause recorded' : kind === 'actions' ? 'Corrective action added' : 'Moved to Under Investigation');
       if (kind === 'causes') setText('');
       if (kind === 'actions') setDraft({ description: '', owner_ref: '', due_date: '', status: '', completion_notes: '' });
       await refresh();
@@ -124,11 +144,10 @@ export function useWorkflow(kind: 'causes' | 'investigation' | 'actions') {
       if (error instanceof ApiError) {
         setErrors(error.problem.field_errors ?? {});
         const status = error.problem.status;
-        setMessage(error.uncertain ? 'The result is unconfirmed. Check the refreshed record before deliberately submitting again.'
-          : status === 412 ? 'The record changed. Refreshed context requires renewed review; nothing was replayed.'
-          : status === 428 ? 'A reviewed revision is required (428). Refresh and review again.'
-          : status === 400 ? 'The request or revision was malformed (400). Refresh and review again.'
-          : status === 409 ? `Conflict (409): ${error.problem.code} — ${error.message}`
+        setMessage(error.uncertain ? "We couldn't confirm whether this was saved. Please check the page before trying again so nothing is saved twice."
+          : status === 403 ? kind === 'causes' ? "You don't have permission to record causes."
+            : kind === 'actions' ? "You don't have permission to add corrective actions."
+            : "You don't have permission to move this defect to Under Investigation."
           : error.message);
         if (error.uncertain || [400, 409, 412, 428].includes(status)) await refresh();
       }
@@ -138,7 +157,8 @@ export function useWorkflow(kind: 'causes' | 'investigation' | 'actions') {
   };
   return { ...record, causes, actions, history, owners, text, setText, draft,
     update: (key: keyof ActionDraft, value: string) => setDraft((previous) => ({ ...previous, [key]: value })),
-    errors, message, submit, refresh, review, reviewReady,
+    errors, message, succeeded, submit, refresh, review, reviewReady,
+    investigationReached: moved || record.parent.data?.data.status === 'Under Investigation',
     reviewed: reviewed !== null && reviewed === record.parent.data?.etag && reviewContext === context,
     pending: aggregatePending, mutationError: mutation.error };
 }

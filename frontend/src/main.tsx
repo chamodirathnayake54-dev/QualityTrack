@@ -27,6 +27,6 @@ try {
   </React.StrictMode>);
 } catch {
   root.render(<main className="page"><h1>Configuration required</h1>
-    <p role="alert">Set VITE_API_BASE_URL to a same-origin path ending in /api/v1 before starting QualityTrack.</p>
+    <p role="alert">QualityTrack is not ready yet. Please ask your support team to finish setting it up.</p>
   </main>);
 }

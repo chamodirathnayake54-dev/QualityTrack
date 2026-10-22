@@ -26,6 +26,10 @@ describe('login and shell', () => {
     const transport = vi.fn<typeof fetch>();
     mount(transport, '/defects/record/causes');
     expect(screen.getByRole('heading', { name: 'Sign in to QualityTrack' })).toBeVisible();
+    expect(screen.getByLabelText('Username')).toHaveAttribute('autocapitalize', 'none');
+    expect(screen.getByLabelText('Username')).toHaveAttribute('autocorrect', 'off');
+    expect(screen.getByLabelText('Username')).toHaveAttribute('spellcheck', 'false');
+    expect(screen.getByText('For your security you are signed out if you refresh this page.')).toBeVisible();
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(screen.getByRole('alert')).toHaveFocus();
     expect(screen.getByLabelText('Username')).toHaveAttribute('aria-invalid', 'true');
@@ -48,7 +52,7 @@ describe('login and shell', () => {
     expect(screen.getByRole('button', { name: 'Signing in…' })).toBeDisabled();
     finishMe(response(identity));
     expect(await screen.findByRole('navigation', { name: 'Main navigation' })).toBeVisible();
-    expect(screen.getByText(/Engineer · Plant timezone: Europe\/London/)).toBeVisible();
+    expect(screen.getByText(/Engineer · Plant time: Europe — London/)).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Defects' })).toHaveFocus();
     expect(await screen.findByText('No matching defects')).toBeVisible();
     query.setQueryData(['protected'], { private: true });
@@ -67,7 +71,7 @@ describe('login and shell', () => {
     await userEvent.type(screen.getByLabelText('Username'), 'engineer');
     await userEvent.type(screen.getByLabelText('Password'), 'password');
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }));
-    expect(await screen.findByText('Access denied')).toBeVisible();
+    expect(await screen.findByText("You don't have permission to do this. Your role does not allow this action.")).toBeVisible();
     expect(screen.queryByRole('navigation')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toHaveValue('');
   });

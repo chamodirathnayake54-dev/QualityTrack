@@ -40,13 +40,13 @@ export function LoginPage() {
 
   return <main className="page">
     <h1 tabIndex={-1}>Sign in to QualityTrack</h1>
-    <p className="text-muted">Your session is kept in memory only. Reloading this page requires sign-in again.</p>
+    <p className="text-muted">For your security you are signed out if you refresh this page.</p>
     {Object.keys(fields).length > 0 &&
       <ErrorSummary errors={Object.entries(fields).map(([key, value]) => ({ label: `${key}: ${value}` }))} />}
     {message && <Alert tone="danger">{message}</Alert>}
     <form onSubmit={submit} noValidate className="space-y-6 rounded-control border border-border bg-surface p-6">
       <Field label="Username" error={fields.username}>{(props) =>
-        <TextInput {...props} name="username" autoComplete="username" value={username}
+        <TextInput {...props} name="username" autoComplete="username" autoCapitalize="none" autoCorrect="off" spellCheck={false} value={username}
           disabled={pending} onChange={(event) => setUsername(event.target.value)} />}</Field>
       <Field label="Password" error={fields.password}>{(props) =>
         <TextInput {...props} name="password" type="password" autoComplete="current-password" value={password}

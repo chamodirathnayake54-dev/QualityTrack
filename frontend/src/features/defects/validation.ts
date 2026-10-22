@@ -43,7 +43,8 @@ export function validateFilters(params: URLSearchParams): Errors {
     !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) &&
     new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
   if (Boolean(start) !== Boolean(end)) errors.dates = 'Supply both start and end dates';
-  else if (start && (!validDate(start) || !validDate(end) || start > end || end === '9999-12-31')) {
+  else if (start && end && start > end) errors.dates = 'End date must be on or after the start date';
+  else if (start && (!validDate(start) || !validDate(end) || end === '9999-12-31')) {
     errors.dates = 'Enter a valid date range ending before 9999-12-31';
   }
   const limit = Number(params.get('limit') ?? 50);

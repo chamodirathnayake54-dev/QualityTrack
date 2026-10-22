@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useSearchParams } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
 import type { Defect, Page } from '../../api/defects';
 import { useAuth } from '../auth/AuthProvider';
 import { useLookups } from './useCapture';
@@ -13,6 +13,9 @@ export function useDefectList() {
   /** Own live list queries and opaque continuation; filter changes always discard the cursor. */
   const { client, identity } = useAuth();
   const [search, setSearch] = useSearchParams();
+  const location = useLocation();
+  const stack: string[] = location.state?.defectListIdentity === identity?.ref &&
+    Array.isArray(location.state?.defectCursors) ? location.state.defectCursors : [];
   const params = new URLSearchParams();
   supported.forEach((key) => { const value = search.get(key); if (value) params.set(key, value); });
   const errors = validateFilters(params);
@@ -33,13 +36,23 @@ export function useDefectList() {
     if (!query.data?.next_cursor) return;
     const next = new URLSearchParams(params);
     next.set('cursor', query.data.next_cursor);
-    setSearch(next);
+    setSearch(next, { state: { defectListIdentity: identity?.ref,
+      defectCursors: [...stack, params.get('cursor') ?? ''] } });
+  };
+  const previousPage = () => {
+    if (!stack.length) return;
+    const next = new URLSearchParams(params);
+    const cursor = stack[stack.length - 1];
+    if (cursor) next.set('cursor', cursor);
+    else next.delete('cursor');
+    setSearch(next, { state: { defectListIdentity: identity?.ref, defectCursors: stack.slice(0, -1) } });
   };
   const firstPage = () => {
     const next = new URLSearchParams(params);
     next.delete('cursor');
     setSearch(next);
   };
-  return { query, lookups, params, errors, apply, nextPage, firstPage,
+  return { query, lookups, params, errors, apply, nextPage, previousPage, firstPage,
+    canPrevious: stack.length > 0,
     canCapture: Boolean(identity?.permissions.includes('defect.capture')), zone: identity?.plant_zone };
 }

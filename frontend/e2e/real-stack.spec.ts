@@ -116,7 +116,7 @@ for (const run of [1, 2]) {
     for (const [label, key] of [
       ['Production line *', 'production_line_id'], ['Shift *', 'shift_id'], ['Defect type *', 'defect_type_id'],
     ]) await expect(page.getByLabel(label, { exact: true }).locator('option:checked'))
-      .toHaveText(`${choices[key].code} — ${choices[key].label}`);
+      .toHaveText(choices[key].label);
     const created = page.waitForResponse(r => r.url().endsWith('/api/v1/defects') && r.request().method() === 'POST');
     await page.getByRole('button', { name: 'Log defect', exact: true }).click();
     const response = await created;
@@ -140,17 +140,17 @@ for (const run of [1, 2]) {
     await page.getByLabel('Why did this defect occur?', { exact: true }).fill('  Fixture clamp loose  ');
     await page.getByRole('button', { name: 'Record cause', exact: true }).click();
     await expect(page.getByRole('region', { name: 'Recorded causes' })).toContainText('Fixture clamp loose');
-    await page.getByRole('link', { name: 'Review investigation step' }).click();
+    await page.getByRole('link', { name: 'Investigation', exact: true }).first().click();
     await page.getByRole('checkbox').check();
     await page.getByRole('button', { name: 'Move to Under Investigation', exact: true }).click();
-    await expect(page.getByRole('region', { name: 'Transition history' })).toContainText('Open → Under Investigation');
-    await expect(page.getByRole('region', { name: 'Transition history' })).toContainText('sample-engineer');
-    await expect(page.getByRole('region', { name: 'Transition history' })).toContainText('Etc/UTC');
+    await expect(page.getByRole('region', { name: 'Status history' })).toContainText('Open → Under Investigation');
+    await expect(page.getByRole('region', { name: 'Status history' })).not.toContainText('Etc/UTC');
+    await expect(page.getByRole('checkbox')).toBeDisabled();
     const history = (await call(request, bearer, `${base}/history`)).data.items;
     expect(history).toHaveLength(1);
     expect(history[0]).toMatchObject({ actor_ref: 'sample-engineer', old_status: 'Open', new_status: 'Under Investigation', aggregate_revision: 3 });
     expect(Number.isNaN(Date.parse(history[0].occurred_at))).toBe(false);
-    await page.getByRole('link', { name: 'Add corrective action', exact: true }).click();
+    await page.getByRole('link', { name: 'Add corrective action', exact: true }).first().click();
     for (const [index, status] of ['Open', 'In Progress'].entries()) {
       await actionFields(page, `QA07-work-${run}-${index}`, status);
       await page.getByRole('button', { name: 'Add action', exact: true }).click();
@@ -166,7 +166,7 @@ for (const run of [1, 2]) {
     await navigate(page, `${base}/actions`);
     for (const action of actions) await expect(page.getByRole('region', { name: 'Associated actions' })).toContainText(action.description);
     await navigate(page, `${base}/investigation`);
-    await expect(page.getByRole('region', { name: 'Transition history' })).toContainText('Open → Under Investigation');
+    await expect(page.getByRole('region', { name: 'Status history' })).toContainText('Open → Under Investigation');
     expect((await call(request, bearer, `${base}/history`)).data.items).toEqual(history);
     expect((await call(request, bearer, `${base}/causes`)).data.items[0].text).toBe('Fixture clamp loose');
     evidence.push({ journey: run, history, actions, final: (await call(request, bearer, base)).data });
@@ -211,7 +211,7 @@ test('05 capture denied at UI and API boundary', async ({ page, request }) => {
   const { body } = await payload(request, engineer);
   await login(page, 'qa-no-capture');
   await navigate(page, '/defects/new');
-  await expect(page.getByText('You do not have permission for this request.').first()).toBeVisible();
+  await expect(page.getByText("You don't have permission to do this. Your role does not allow this action.").first()).toBeVisible();
   const denied = await token(request, 'qa-no-capture');
   const response = await request.post('/api/v1/defects', {
     headers: { Authorization: `Bearer ${denied}` }, multipart: { capture: JSON.stringify(body) },
@@ -244,7 +244,7 @@ test('08 unsaved cause cannot satisfy investigation presence gate', async ({ pag
   await login(page);
   await navigate(page, `/defects/${defect.id}/causes`);
   await page.getByLabel('Why did this defect occur?', { exact: true }).fill('Not saved');
-  await page.getByRole('link', { name: 'Review investigation step' }).click();
+  await page.getByRole('link', { name: 'Investigation', exact: true }).first().click();
   await page.getByRole('checkbox').check();
   const response = page.waitForResponse(r => r.url().endsWith('/transitions') && r.request().method() === 'POST');
   await page.getByRole('button', { name: 'Move to Under Investigation', exact: true }).click();
@@ -267,7 +267,7 @@ test('10 exact stale ETag, renewed review, and denied transition UI', async ({ p
   const stale = await response;
   expect(stale.status()).toBe(412);
   expect(stale.request().headers()['if-match']).toBe('"2"');
-  await expect(page.getByText(/Refreshed context requires renewed review/)).toBeVisible();
+  await expect(page.getByText(/Someone else updated this defect/)).toBeVisible();
   await expect(page.getByRole('checkbox')).not.toBeChecked();
   expect((await call(request, bearer, `${base}/history`)).data.items).toHaveLength(0);
   await page.getByRole('button', { name: 'Sign out' }).click();
@@ -316,7 +316,7 @@ test('13 delayed real read cannot cross logout into denied-reader session', asyn
   release();
   await page.unrouteAll({ behavior: 'wait' });
   await navigate(page, `/defects/${defect.id}/causes`);
-  await expect(page.getByText('You do not have permission for this request.').first()).toBeVisible();
+  await expect(page.getByText("You don't have permission to do this. Your role does not allow this action.").first()).toBeVisible();
   await expect(page.getByText(defect.part_number, { exact: true })).toHaveCount(0);
   const denied = await token(request, 'qa-no-read');
   expect((await call(request, denied, `/defects/${defect.id}/causes`, 'POST', { text: 'Forbidden' })).status).toBe(403);
@@ -432,7 +432,7 @@ test('20 lose response after actual commit; one POST and UI reconciliation', asy
   });
   await actionFields(page, description);
   await page.getByRole('button', { name: 'Add action', exact: true }).click();
-  await expect(page.getByText('The result is unconfirmed. Check the refreshed record before deliberately submitting again.')).toBeVisible();
+  await expect(page.getByText("We couldn't confirm whether this was saved. Please check the page before trying again so nothing is saved twice.")).toBeVisible();
   await expect(page.getByRole('region', { name: 'Associated actions' })).toContainText(description);
   expect(writes).toBe(1);
   const actions = (await call(request, bearer, `/defects/${defect.id}/actions`)).data.items;

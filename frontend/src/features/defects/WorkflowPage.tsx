@@ -12,7 +12,7 @@ export function CauseEditor({ text, change, errors, disabled }: {
 }) {
   /** Render preliminary cause input without deciding lifecycle eligibility. */
   return <Field label="Why did this defect occur?" error={errors.text}
-    hint="A preliminary cause is acceptable. You do not need five answers to meet the presence gate.">
+    hint="A first answer is enough. You can add more whys later.">
     {(props) => <TextArea {...props} value={text} disabled={disabled} onChange={(event) => change(event.target.value)} />}
   </Field>;
 }
@@ -42,7 +42,7 @@ export function CorrectiveActionFields({ draft, update, errors, owners, disabled
         {actionStatuses.map((status) => <option key={status}>{status}</option>)}
       </Select>}
     </Field>
-    <p>Complete requires applicable authority and notes; completion does not mean effectiveness verified.</p>
+    <p>To mark an action Complete you need permission and must add notes. Complete means the work is done, not yet proven to have worked.</p>
     {draft.status === 'Complete' && <Field label="Completion notes *" error={errors.completion_notes}>{(props) =>
       <TextArea {...props} disabled={disabled} value={draft.completion_notes} onChange={(event) => update('completion_notes', event.target.value)} />}
     </Field>}
@@ -53,48 +53,54 @@ export function CorrectiveActionFields({ draft, update, errors, owners, disabled
 export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'actions' }) {
   /** Render S2–S4 from controller-prepared state; never infer grants, gates or assignability. */
   const w = useWorkflow(kind);
-  const title = kind === 'causes' ? 'Record cause' : kind === 'investigation' ? 'Start investigation' : 'Add corrective action';
+  const title = kind === 'causes' ? 'Record cause' : kind === 'investigation' ? 'Investigation' : 'Add corrective action';
   const link = `/defects/${encodeURIComponent(w.defectId)}`;
   const busy = w.pending || w.parent.isFetching;
   const ownerReady = w.owners.isSuccess && w.owners.data.items.length > 0;
   return <div className="space-y-6">
     <h1 tabIndex={-1}>{title}</h1>
-    {kind === 'causes' && <p>Record a cause using the initial 5-Why prompt. A nonblank cause is required.</p>}
-    {kind === 'actions' && <p>Fields marked * are required. Select a status explicitly.</p>}
-    {w.message && <Alert tone={w.mutationError ? 'warning' : 'success'}>{w.message}</Alert>}
+    {kind === 'causes' && <p>Describe why this defect happened. Your best answer is fine for now; you can add more later.</p>}
+    {kind === 'actions' && <p>Fields marked * are required.</p>}
+    {w.message && <Alert tone={w.succeeded ? 'success' : 'warning'}>
+      <p>{w.message}</p>
+      {w.succeeded && <Link to={kind === 'causes' ? `${link}/investigation` : kind === 'investigation' ? `${link}/actions` : link}>
+        {kind === 'causes' ? 'Investigation' : kind === 'investigation' ? 'Add corrective action' : 'Back to defect'}
+      </Link>}
+    </Alert>}
     <ErrorSummary errors={Object.values(w.errors).map((label) => ({ label }))} />
     <ReadFeedback label="defect" pending={w.parent.isPending || w.parent.isFetching} error={w.parent.error}
       empty={false} retry={() => { void w.refresh(); }} />
+    <nav aria-label="Defect journey" className="flex flex-wrap gap-4">
+      <Link to={link}>Back to defect</Link>
+      <Link to={`${link}/causes`}>Record or review cause</Link>
+      <Link to={`${link}/investigation`}>Investigation</Link>
+      <Link to={`${link}/actions`}>Add corrective action</Link>
+    </nav>
     {w.parent.isSuccess && !w.parent.isFetching && <>
       <DefectContextSummary defect={w.parent.data.data} />
-      <nav aria-label="Defect journey" className="flex flex-wrap gap-4">
-        <Link to={`${link}/causes`}>Record or review cause</Link>
-        <Link to={`${link}/investigation`}>Review investigation step</Link>
-        <Link to={`${link}/actions`}>Add corrective action</Link>
-      </nav>
       {(kind === 'causes' || kind === 'investigation') && <WorkflowCollection title="Recorded causes"
         empty={kind === 'investigation' ? 'No recorded cause. Record a cause before starting investigation' : 'No cause recorded yet'} query={w.causes}>
         <ul>{w.causes.data?.pages.flatMap((page) => page.items).map((cause) =>
-          <li key={cause.id}>{cause.text} — Recorded by {cause.recorded_by_ref}</li>)}</ul>
-        <p>Preliminary recorded cause; validity is not established. The API checks the presence gate.</p>
+          <li key={cause.id}>{cause.text}</li>)}</ul>
+        <p>These are the causes recorded so far. They are not yet confirmed.</p>
       </WorkflowCollection>}
       {kind === 'causes' && <form className="panel space-y-4" noValidate onSubmit={(event) => { event.preventDefault(); void w.submit(); }}>
         <CauseEditor text={w.text} change={w.setText} errors={w.errors} disabled={busy} />
         <Button type="submit" disabled={busy} pending={w.pending}>{w.pending ? 'Recording cause…' : 'Record cause'}</Button>
       </form>}
       {kind === 'investigation' && <>
-        <WorkflowCollection title="Transition history" empty="No transition history yet" query={w.history}>
+        <WorkflowCollection title="Status history" empty="No status history yet" query={w.history}>
           <ul>{w.history.data?.pages.flatMap((page) => page.items).map((entry) =>
-            <li key={entry.id}>{entry.old_status} → {entry.new_status} · {entry.actor_ref} ·
+            <li key={entry.id}>{entry.old_status} → {entry.new_status} ·
               {' '}{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long', timeZone: w.identity?.plant_zone }).format(new Date(entry.occurred_at))}
-              {' '}({w.identity?.plant_zone})</li>)}</ul>
+            </li>)}</ul>
         </WorkflowCollection>
         <form className="panel space-y-4" noValidate onSubmit={(event) => { event.preventDefault(); void w.submit(); }}>
-          <InvestigationSummary />
-          <label className="flex min-h-11 items-center gap-3"><input type="checkbox" checked={w.reviewed} disabled={busy || !w.reviewReady}
-            onChange={(event) => w.review(event.target.checked)} /> I have reviewed the current defect and saved context</label>
-          <Button type="button" disabled={busy} onClick={() => { void w.refresh(); }}>Refresh for review</Button>
-          <Button type="submit" disabled={busy || !w.reviewReady} pending={w.pending}>
+          {w.investigationReached ? <p>This defect is Under Investigation. You can add a corrective action next.</p> : <InvestigationSummary />}
+          <label className="flex min-h-11 items-center gap-3"><input type="checkbox" checked={w.reviewed} disabled={busy || !w.reviewReady || w.investigationReached}
+            onChange={(event) => w.review(event.target.checked)} /> I have checked the defect details and causes above.</label>
+          <Button type="button" disabled={busy} onClick={() => { void w.refresh(); }}>Reload latest details</Button>
+          <Button type="submit" disabled={busy || !w.reviewReady || w.investigationReached} pending={w.pending}>
             {w.pending ? 'Moving to Under Investigation…' : 'Move to Under Investigation'}
           </Button>
         </form>

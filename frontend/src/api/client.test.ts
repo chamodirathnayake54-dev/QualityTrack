@@ -1,10 +1,25 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ApiClient, ApiError } from './client';
+import { ApiClient, ApiError, friendlyProblem } from './client';
 
 const json = (data: unknown, init: ResponseInit = {}) =>
   new Response(JSON.stringify(data), { ...init, headers: { 'Content-Type': 'application/json', ...init.headers } });
 
 describe('API client', () => {
+  it.each([
+    [401, 'invalid_credentials', 'Username or password is incorrect.'],
+    [403, 'forbidden', "You don't have permission to do this. Your role does not allow this action."],
+    [409, 'actions_incomplete', "This can't be done yet: all corrective actions must be completed first."],
+    [409, 'cause_required', "This can't be done right now because of the defect's current status."],
+    [412, 'precondition_failed', 'Someone else updated this defect. We loaded the latest details. Please check them and try again.'],
+    [428, 'precondition_required', 'Please tick the box to confirm you have checked the latest details, then try again.'],
+    [400, 'invalid_cursor', 'Something went wrong with this request. We reloaded the page, please try again.'],
+    [499, 'unknown', 'Original fallback'],
+  ])('translates %s %s without changing backend text', (status, code, expected) => {
+    const problem = { status: Number(status), code: String(code), title: 'Original fallback' };
+    expect(friendlyProblem(problem)).toBe(expected);
+    expect(problem.title).toBe('Original fallback');
+  });
+
   it('rejects missing or cross-origin configuration visibly', () => {
     expect(() => new ApiClient('')).toThrow('VITE_API_BASE_URL');
     expect(() => new ApiClient('https://other.test/api/v1')).toThrow('same-origin');
