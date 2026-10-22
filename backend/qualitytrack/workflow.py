@@ -350,10 +350,12 @@ def list_children(session, caller, settings, identifier, kind, cursor, limit):
                 raise ValueError
             if kind == "causes":
                 instant = datetime.fromisoformat(key[0])
-                if instant.tzinfo is None:
+                if instant.tzinfo is None or not isinstance(key[1], str):
                     raise ValueError
                 values = (instant, UUID(key[1]))
             elif kind == "actions":
+                if not isinstance(key[0], str):
+                    raise ValueError
                 values = (UUID(key[0]),)
             else:
                 if len(key) != 1 or type(key[0]) is not int or key[0] < 1:
