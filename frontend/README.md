@@ -1,67 +1,94 @@
-# QualityTrack frontend — Batch 1
+# QualityTrack frontend
 
-React/TypeScript foundation with Vite, Tailwind, React Router and TanStack Query.
-Direct dependencies are exact-pinned in `package.json`.
+React/TypeScript, Vite, Tailwind, React Router and TanStack Query frontend for
+the bounded Quality Engineer S1–S4 journey. Dependencies are exact-pinned.
 
-## Configure and run
+## Run against the backend
 
-Use Node.js 22 LTS and npm. Run these commands from `QualityTrack/frontend`:
+Use **Node.js 22 LTS** and npm. From `QualityTrack/frontend`:
 
 ```sh
 npm ci
 npm run dev
 ```
 
-Ask the environment owner to supply these settings (see `.env.example`, names only):
+Request these public settings from the environment owner (see `.env.example`):
 
-- `VITE_API_BASE_URL`: required public same-origin path ending in `/api/v1`.
-  For the supplied development proxy use `/api/v1`.
-- `API_PROXY_TARGET`: optional development-only backend origin, for example
-  `http://127.0.0.1:8000` (also the proxy default). Never include credentials.
+- `VITE_API_BASE_URL=/api/v1`: required same-origin API base.
+- `API_PROXY_TARGET`: optional development-only backend origin; defaults to
+  `http://127.0.0.1:8000`. Do not include credentials.
 
-Missing/invalid API-base configuration produces a visible setup message. Vite
-proxies `/api` to the running backend with no path rewrite and no backend/CORS
-change. Start the backend separately using its existing instructions. No backend
-or database service is started by frontend tests.
+The owner must supply configuration before Vite starts; restart Vite after
+configuration changes. Frontend variables are public, never secrets.
+
+Start the backend separately following [backend setup](../backend/README.md),
+including its Python 3.11/PostgreSQL 16 prerequisites and securely injected
+configuration. For an already provisioned disposable demo, its documented API
+command from `backend/` is `python scripts/demo_db.py api`. Database recreation
+is destructive and is not needed to start this frontend.
+
+Open the URL printed by Vite. The browser sends `/api/v1/...` to Vite; the dev
+proxy forwards `/api` to `API_PROXY_TARGET` **without rewriting the path**.
+Bearer authorization, multipart bodies, If-Match and ETag travel through that
+same-origin proxy. No backend CORS changes are needed. Use an existing permitted
+backend account; never put credentials in frontend environment variables.
+
+If setup is missing, the app displays “Configuration required”. If requests
+fail, confirm the backend is running at the proxy target and inspect its safe
+health/configuration diagnostics. A 403 means authority is absent, not an empty
+record set. Do not grant permissions merely to suppress a frontend message.
+
+Production `dist/` needs same-origin `/api` routing to the backend plus SPA
+fallback to `index.html` for application deep links. API errors must not use the
+SPA fallback. The Vite development proxy is not a production proxy.
+
+## Verification
 
 ```sh
 npm test
 npm run build
+npm run test:e2e:install
+CI=true npm run test:e2e
+npm audit
 ```
 
-Tests are non-interactive and cover shared UI, API transport, and login/shell
-integration with mocked HTTP responses. Production output is `dist/`. Production
-hosting must route `/api` to the backend and fall back to `index.html` for SPA
-deep links; do not send API errors through the SPA fallback. A direct cross-origin
-deployment is not configured by this batch.
+The unit/component suite uses mocked HTTP. Playwright manages its Vite server
+on loopback port 4173 and supplies a test-only API base. Its one critical-path
+scenario runs in desktop and mobile Chromium projects against a stateful,
+fully mocked API. No backend/database is started by the tests. Browser binaries
+must match the pinned Playwright version. If using a custom browser cache,
+use the same `PLAYWRIGHT_BROWSERS_PATH` for installation and execution.
+
+E2E verifies login, photo-free multipart capture, cause recording, reviewed
+investigation with exact If-Match, history, and a confirmed Open action.
+Generated traces/results are ignored by Git. A passing mocked journey does not
+prove real-backend integration, all browsers, assistive-technology conformance,
+or production readiness. Audit findings remain open; see the reports below.
 
 ## Implemented boundaries
 
-- `src/ui/`: accessible, presentation-only shared controls and feedback.
-- `src/api/`: bearer transport, exact ETag return metadata, explicit opt-in
-  If-Match, abort support, Problem/field-error handling and uncertain write errors.
-  No automatic write retries or automatic stale-request replay.
-- `src/features/auth/`: JSON login followed by `/me` before entering the shell.
-  Backend identity/grants are authoritative; tokens are not decoded for grants.
-- `src/app/`: guarded shell, caller/timezone, sign-out, route focus, and named
-  placeholders for future defect list and S1–S4 pages. Placeholders do not fetch
-  records, capture photos, or perform mutations.
+- `src/ui/`: shared presentation controls and accessible feedback.
+- `src/api/`: DTOs, bearer transport, exact response ETags, Problem handling,
+  cancellation and uncertain-write outcomes; no automatic POST retries.
+- `src/features/auth/`: login followed by `/me`, memory-only session.
+- `src/features/defects/`: live filtered/paginated list, photo-free S1 capture,
+  S2 causes, S3 reviewed investigation/history, S4 action capture/association.
+  Hooks own validation and orchestration; the server owns authorization,
+  eligible owners, lifecycle gates and committed state.
+- `src/app/`: guarded routing, shell, sign-out and route-heading focus.
 
-The bearer token, identity, and query cache live in memory only. Reload requires
-sign-in. Sign-out, token expiry, and authenticated 401 clear the session and
-protected query data and cancel old requests. Late previous-session responses
-are ignored. Sign-out does not revoke an issued backend token. There is no
-refresh-token, persistent storage, offline service worker, or invented logout API.
+Reload requires sign-in. Sign-out clears local protected state but does not
+revoke an issued backend token. No persistent tokens, offline queue, refresh
+token, autosave, photo upload, closure/reopening, action progression, analytics,
+or export UI is introduced.
 
-Use response ETags exactly as returned. Pass `etag` explicitly only for requests
-whose backend contract requires If-Match; capture/cause/action creation has no
-invented precondition. Future transition controllers must bind revisions to
-reviewed context and require renewed review on 412, not replay automatically.
-FormData is supported without setting a multipart boundary manually.
+Capture, cause and action creation do not invent If-Match preconditions.
+Investigation uses the reviewed parent revision; stale state requires renewed
+review and explicit resubmission, never automatic replay. A lost write response
+may mean the mutation committed: reconcile before deliberately retrying.
 
-Batch 0's approved photo-free deviation remains binding for later S1:
-“Photo upload is not available in this version”, with no file control. Batch 1
-does not implement S1, defect listing, S2–S4, pagination, permission-aware journey
-controls, or their acceptance checks. Accessibility conformance, UX alignment
-percentages, cross-page reuse targets and live backend/browser integration are
-not claimed by these foundation tests.
+## Batch 4 review reports
+
+See [report index](docs/index.md) for UX alignment, measured component reuse,
+the five-component no-business-logic review, persona review, verification,
+accessibility limitations and dependency-audit findings.

@@ -1,7 +1,25 @@
 import type { ReactNode } from 'react';
 import type { Defect } from '../../api/defects';
+import type { Action } from '../../api/workflow';
 import { Button, EmptyState, StatusBadge } from '../../ui';
 import { ReadFeedback } from './ReadFeedback';
+
+// PUBLIC_INTERFACE
+export function InvestigationSummary() {
+  /** Explain the requested transition; the controller and API own acceptance. */
+  return <>
+    <p>Requested status: Under Investigation</p>
+    <p>The server decides permissions, recorded-cause presence and transition legality. Entering this screen does not change status.</p>
+  </>;
+}
+
+// PUBLIC_INTERFACE
+export function AssociatedActionList({ actions }: { actions: Action[] }) {
+  /** Render confirmed action fields without deriving eligibility or effectiveness. */
+  return <ul className="space-y-3">{actions.map((action) => <li key={action.id}>
+    {action.description} · {action.owner_ref} · {action.due_date} · {action.status}
+  </li>)}</ul>;
+}
 
 // PUBLIC_INTERFACE
 export function DefectContextSummary({ defect }: { defect: Defect }) {

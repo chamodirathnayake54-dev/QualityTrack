@@ -23,6 +23,10 @@
 }
 
 @layer base {
+  body { margin: 0; overflow-wrap: anywhere; }
+  *, *::before, *::after { box-sizing: border-box; }
+  fieldset { min-inline-size: 0; }
+  input, select, textarea { min-width: 0; max-width: 100%; }
   :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
   h1 { @apply text-2xl font-bold; }
   h2 { @apply text-xl font-semibold; }
@@ -37,4 +41,6 @@
   .control[aria-invalid="true"] { @apply border-danger; }
   .control:disabled { @apply cursor-not-allowed bg-canvas text-muted; }
   .page { @apply mx-auto w-full max-w-form space-y-6 p-4 md:p-8; }
+  .page > *, .grid > *, header > * { min-width: 0; }
+  .panel { @apply rounded-control border border-border bg-surface p-4 md:p-6; }
 }

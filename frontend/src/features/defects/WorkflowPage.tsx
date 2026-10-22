@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Alert, Button, DateInput, EmptyState, ErrorSummary, Field, Select, TextArea } from '../../ui';
 import { useWorkflow } from './useWorkflow';
 import { ReadFeedback } from './ReadFeedback';
-import { DefectContextSummary, WorkflowCollection } from './WorkflowViews';
+import { AssociatedActionList, DefectContextSummary, InvestigationSummary, WorkflowCollection } from './WorkflowViews';
 import { actionStatuses, type ActionDraft, type Owner } from './workflowValidation';
 import type { Errors } from './validation';
 
@@ -59,6 +59,8 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
   const ownerReady = w.owners.isSuccess && w.owners.data.items.length > 0;
   return <div className="space-y-6">
     <h1 tabIndex={-1}>{title}</h1>
+    {kind === 'causes' && <p>Record a cause using the initial 5-Why prompt. A nonblank cause is required.</p>}
+    {kind === 'actions' && <p>Fields marked * are required. Select a status explicitly.</p>}
     {w.message && <Alert tone={w.mutationError ? 'warning' : 'success'}>{w.message}</Alert>}
     <ErrorSummary errors={Object.values(w.errors).map((label) => ({ label }))} />
     <ReadFeedback label="defect" pending={w.parent.isPending || w.parent.isFetching} error={w.parent.error}
@@ -88,9 +90,8 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
               {' '}({w.identity?.plant_zone})</li>)}</ul>
         </WorkflowCollection>
         <form className="panel space-y-4" noValidate onSubmit={(event) => { event.preventDefault(); void w.submit(); }}>
-          <p>Requested status: Under Investigation</p>
-          <p>The server decides permissions, recorded-cause presence and transition legality. Entering this screen does not change status.</p>
-          <label className="block"><input type="checkbox" checked={w.reviewed} disabled={busy || !w.reviewReady}
+          <InvestigationSummary />
+          <label className="flex min-h-11 items-center gap-3"><input type="checkbox" checked={w.reviewed} disabled={busy || !w.reviewReady}
             onChange={(event) => w.review(event.target.checked)} /> I have reviewed the current defect and saved context</label>
           <Button type="button" disabled={busy} onClick={() => { void w.refresh(); }}>Refresh for review</Button>
           <Button type="submit" disabled={busy || !w.reviewReady} pending={w.pending}>
@@ -100,9 +101,7 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
       </>}
       {kind === 'actions' && <>
         <WorkflowCollection title="Associated actions" empty="No corrective actions yet" query={w.actions}>
-          <ul>{w.actions.data?.pages.flatMap((page) => page.items).map((action) => <li key={action.id}>
-            {action.description} · {action.owner_ref} · {action.due_date} · {action.status}
-          </li>)}</ul>
+          <AssociatedActionList actions={w.actions.data?.pages.flatMap((page) => page.items) ?? []} />
         </WorkflowCollection>
         <ReadFeedback label="assignable owners" pending={w.owners.isPending} error={w.owners.error}
           empty={false} retry={() => { void w.owners.refetch(); }} />

@@ -44,7 +44,7 @@ export class ApiClient {
   private readonly base: string;
 
   // PUBLIC_INTERFACE
-  constructor(baseUrl: string, private readonly transport: typeof fetch = fetch) {
+  constructor(baseUrl: string, private readonly transport: typeof fetch = (...args) => fetch(...args)) {
     /** Require explicit same-origin configuration to avoid accidental credential forwarding. */
     if (!baseUrl || !/^\/(?!\/)/.test(baseUrl) || !baseUrl.endsWith('/api/v1')) {
       throw new Error('Set VITE_API_BASE_URL to a same-origin path ending in /api/v1.');
