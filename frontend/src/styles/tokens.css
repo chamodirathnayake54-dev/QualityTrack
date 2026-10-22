@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --canvas: #f8fafc;
+  --surface: #ffffff;
+  --border: #cbd5e1;
+  --ink: #0f172a;
+  --muted: #475569;
+  --primary: #1d4ed8;
+  --primary-hover: #1e40af;
+  --focus: #2563eb;
+  --success: #166534;
+  --warning: #92400e;
+  --danger: #b91c1c;
+  --radius-control: 8px;
+  font-family: system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--canvas);
+}
+
+@layer base {
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+  h1 { @apply text-2xl font-bold; }
+  h2 { @apply text-xl font-semibold; }
+  a { @apply text-primary underline underline-offset-2; }
+  th, td { @apply border-b border-border px-4 py-3 text-left align-top; }
+}
+
+@layer components {
+  .control {
+    @apply min-h-11 w-full rounded-control border border-border bg-surface px-3 py-2 text-ink;
+  }
+  .control[aria-invalid="true"] { @apply border-danger; }
+  .control:disabled { @apply cursor-not-allowed bg-canvas text-muted; }
+  .page { @apply mx-auto w-full max-w-form space-y-6 p-4 md:p-8; }
+}
