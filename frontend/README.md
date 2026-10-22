@@ -18,6 +18,12 @@ Request these public settings from the environment owner (see `.env.example`):
 - `API_PROXY_TARGET`: optional development-only backend origin; defaults to
   `http://127.0.0.1:8000`. Do not include credentials.
 
+The example supplies `VITE_API_BASE_URL=/api/v1` as the default configuration
+value; the application intentionally has no implicit fallback. Have the
+environment owner apply this public value, or start locally with
+`VITE_API_BASE_URL=/api/v1 npm run dev`. Merely having `.env.example` in the
+repository does not configure Vite.
+
 The owner must supply configuration before Vite starts; restart Vite after
 configuration changes. Frontend variables are public, never secrets.
 

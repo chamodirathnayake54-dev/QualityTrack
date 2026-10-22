@@ -1,0 +1,27 @@
+{
+  "started_at": "2026-10-22T09:28:46.597270+00:00",
+  "head": "8e3abfaca941f1ddfea2f6f866144ae22faada31",
+  "candidate": "uncommitted Batch 2 worktree",
+  "python": "3.11.14",
+  "node": "v22.23.4",
+  "postgres": "postgres (PostgreSQL) 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1)",
+  "plant_zone": "Etc/UTC",
+  "database_role": "isolated test administrator; not deployment-role QA",
+  "finished_at": "2026-10-22T09:29:08.268405+00:00",
+  "browser_exit": 0,
+  "database_reconciliation": [
+    {
+      "journey": 1,
+      "defect_id": "a170702b-6d60-4094-846e-15e287cc334c"
+    },
+    {
+      "journey": 2,
+      "defect_id": "303303e2-b358-48b6-a320-af09888d85c7"
+    },
+    {
+      "case": "20",
+      "count": 1,
+      "id": "f76c946c-0cab-44e8-9fe0-a32cdb339eb6"
+    }
+  ]
+}

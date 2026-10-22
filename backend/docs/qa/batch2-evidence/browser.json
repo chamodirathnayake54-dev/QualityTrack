@@ -1,0 +1,931 @@
+{
+  "evidence": [
+    {
+      "case": "01 missing configuration then valid login and lookups",
+      "status": "passed",
+      "at": "2026-10-22T09:28:50.881Z"
+    },
+    {
+      "journey": 1,
+      "defect_id": "a170702b-6d60-4094-846e-15e287cc334c",
+      "capture": {
+        "id": "a170702b-6d60-4094-846e-15e287cc334c",
+        "part_number": "QA07-1792661331583-2",
+        "defect_type": {
+          "id": "7b3e6a4a-023b-56ba-9a5e-b3bf2b43b3ad",
+          "code_at_capture": "SAMPLE-DENT",
+          "label_at_capture": "Dent"
+        },
+        "quantity_affected": 3,
+        "production_line": {
+          "id": "b198f65e-b387-5568-acb8-4381fa23f610",
+          "code_at_capture": "SAMPLE-LINE-A",
+          "label_at_capture": "Sample Line A"
+        },
+        "shift": {
+          "id": "85c977ce-8859-507d-8f1e-a018a94707ca",
+          "code_at_capture": "SAMPLE-SHIFT-1",
+          "label_at_capture": "Sample Shift 1"
+        },
+        "severity": "Major",
+        "status": "Open",
+        "created_by_ref": "sample-engineer",
+        "created_at": "2026-10-22T09:28:51.745267Z",
+        "has_photo": false,
+        "revision": 1
+      }
+    },
+    {
+      "journey": 1,
+      "history": [
+        {
+          "id": "4c8d7024-bdd2-493c-be0f-c2745988d287",
+          "old_status": "Open",
+          "new_status": "Under Investigation",
+          "actor_ref": "sample-engineer",
+          "occurred_at": "2026-10-22T09:28:52.211955Z",
+          "aggregate_revision": 3
+        }
+      ],
+      "actions": [
+        {
+          "id": "93c54ea1-5ca6-452f-abce-9adebe4babaa",
+          "defect_id": "a170702b-6d60-4094-846e-15e287cc334c",
+          "description": "QA07-work-1-0",
+          "owner_ref": "sample-engineer",
+          "due_date": "2026-11-01",
+          "status": "Open",
+          "revision": 5
+        },
+        {
+          "id": "a35876ce-2ee4-4d6d-b5b0-baffbc3dc802",
+          "defect_id": "a170702b-6d60-4094-846e-15e287cc334c",
+          "description": "QA07-work-1-1",
+          "owner_ref": "sample-engineer",
+          "due_date": "2026-11-01",
+          "status": "In Progress",
+          "revision": 5
+        }
+      ],
+      "final": {
+        "id": "a170702b-6d60-4094-846e-15e287cc334c",
+        "part_number": "QA07-1792661331583-2",
+        "defect_type": {
+          "id": "7b3e6a4a-023b-56ba-9a5e-b3bf2b43b3ad",
+          "code_at_capture": "SAMPLE-DENT",
+          "label_at_capture": "Dent"
+        },
+        "quantity_affected": 3,
+        "production_line": {
+          "id": "b198f65e-b387-5568-acb8-4381fa23f610",
+          "code_at_capture": "SAMPLE-LINE-A",
+          "label_at_capture": "Sample Line A"
+        },
+        "shift": {
+          "id": "85c977ce-8859-507d-8f1e-a018a94707ca",
+          "code_at_capture": "SAMPLE-SHIFT-1",
+          "label_at_capture": "Sample Shift 1"
+        },
+        "severity": "Major",
+        "status": "Under Investigation",
+        "created_by_ref": "sample-engineer",
+        "created_at": "2026-10-22T09:28:51.745267Z",
+        "has_photo": false,
+        "revision": 5
+      }
+    },
+    {
+      "case": "02/03/07/09/11/12 critical journey run 1",
+      "status": "passed",
+      "at": "2026-10-22T09:28:53.268Z"
+    },
+    {
+      "journey": 2,
+      "defect_id": "303303e2-b358-48b6-a320-af09888d85c7",
+      "capture": {
+        "id": "303303e2-b358-48b6-a320-af09888d85c7",
+        "part_number": "QA07-1792661333901-3",
+        "defect_type": {
+          "id": "7b3e6a4a-023b-56ba-9a5e-b3bf2b43b3ad",
+          "code_at_capture": "SAMPLE-DENT",
+          "label_at_capture": "Dent"
+        },
+        "quantity_affected": 3,
+        "production_line": {
+          "id": "b198f65e-b387-5568-acb8-4381fa23f610",
+          "code_at_capture": "SAMPLE-LINE-A",
+          "label_at_capture": "Sample Line A"
+        },
+        "shift": {
+          "id": "85c977ce-8859-507d-8f1e-a018a94707ca",
+          "code_at_capture": "SAMPLE-SHIFT-1",
+          "label_at_capture": "Sample Shift 1"
+        },
+        "severity": "Major",
+        "status": "Open",
+        "created_by_ref": "sample-engineer",
+        "created_at": "2026-10-22T09:28:54.080671Z",
+        "has_photo": false,
+        "revision": 1
+      }
+    },
+    {
+      "journey": 2,
+      "history": [
+        {
+          "id": "cc623cde-f306-4a80-8559-783e24aa25d9",
+          "old_status": "Open",
+          "new_status": "Under Investigation",
+          "actor_ref": "sample-engineer",
+          "occurred_at": "2026-10-22T09:28:54.530680Z",
+          "aggregate_revision": 3
+        }
+      ],
+      "actions": [
+        {
+          "id": "b393007b-68c6-403a-bb1d-b868bca7dfb4",
+          "defect_id": "303303e2-b358-48b6-a320-af09888d85c7",
+          "description": "QA07-work-2-0",
+          "owner_ref": "sample-engineer",
+          "due_date": "2026-11-01",
+          "status": "Open",
+          "revision": 5
+        },
+        {
+          "id": "ce8dd3b2-8e5d-4e9e-8b32-cd85903b9ab1",
+          "defect_id": "303303e2-b358-48b6-a320-af09888d85c7",
+          "description": "QA07-work-2-1",
+          "owner_ref": "sample-engineer",
+          "due_date": "2026-11-01",
+          "status": "In Progress",
+          "revision": 5
+        }
+      ],
+      "final": {
+        "id": "303303e2-b358-48b6-a320-af09888d85c7",
+        "part_number": "QA07-1792661333901-3",
+        "defect_type": {
+          "id": "7b3e6a4a-023b-56ba-9a5e-b3bf2b43b3ad",
+          "code_at_capture": "SAMPLE-DENT",
+          "label_at_capture": "Dent"
+        },
+        "quantity_affected": 3,
+        "production_line": {
+          "id": "b198f65e-b387-5568-acb8-4381fa23f610",
+          "code_at_capture": "SAMPLE-LINE-A",
+          "label_at_capture": "Sample Line A"
+        },
+        "shift": {
+          "id": "85c977ce-8859-507d-8f1e-a018a94707ca",
+          "code_at_capture": "SAMPLE-SHIFT-1",
+          "label_at_capture": "Sample Shift 1"
+        },
+        "severity": "Major",
+        "status": "Under Investigation",
+        "created_by_ref": "sample-engineer",
+        "created_at": "2026-10-22T09:28:54.080671Z",
+        "has_photo": false,
+        "revision": 5
+      }
+    },
+    {
+      "case": "02/03/07/09/11/12 critical journey run 2",
+      "status": "passed",
+      "at": "2026-10-22T09:28:55.574Z"
+    },
+    {
+      "case": "04 each missing capture field, quantity variants and explicit severities",
+      "status": "passed",
+      "at": "2026-10-22T09:28:58.574Z"
+    },
+    {
+      "case": "05 capture denied at UI and API boundary",
+      "status": "passed",
+      "at": "2026-10-22T09:28:59.497Z"
+    },
+    {
+      "fixture": "88ad2b05-1633-4109-be9c-bc5dbad95441",
+      "part_number": "QA07-1792661339670-6"
+    },
+    {
+      "case": "06 retire selected type through API and preserve prior snapshot",
+      "status": "passed",
+      "at": "2026-10-22T09:29:00.544Z"
+    },
+    {
+      "fixture": "98c4f1f6-2da5-412f-99d4-b0d9706c5877",
+      "part_number": "QA07-1792661340726-7"
+    },
+    {
+      "case": "08 unsaved cause cannot satisfy investigation presence gate",
+      "status": "passed",
+      "at": "2026-10-22T09:29:01.531Z"
+    },
+    {
+      "fixture": "cdcf72ce-297c-4e39-a0a6-26a191d536c9",
+      "part_number": "QA07-1792661341704-8"
+    },
+    {
+      "case": "10 exact stale ETag, renewed review, and denied transition UI",
+      "status": "passed",
+      "at": "2026-10-22T09:29:02.931Z"
+    },
+    {
+      "fixture": "dce7c15e-7421-466f-990e-4e4811c53c42",
+      "part_number": "QA07-1792661343120-9"
+    },
+    {
+      "case": "11 required action fields each reject without writes",
+      "status": "passed",
+      "at": "2026-10-22T09:29:04.023Z"
+    },
+    {
+      "fixture": "67534ae4-a6e3-40b9-bad6-6d672873b126",
+      "part_number": "QA07-1792661344186-10"
+    },
+    {
+      "case": "13 delayed real read cannot cross logout into denied-reader session",
+      "status": "passed",
+      "at": "2026-10-22T09:29:05.340Z"
+    },
+    {
+      "case": "14",
+      "acceptance": "FAILED requirement gap; defensive rejection is not photo acceptance"
+    },
+    {
+      "case": "14 optional photo requirement remains unmet, API rejects safely",
+      "status": "passed",
+      "at": "2026-10-22T09:29:06.182Z"
+    },
+    {
+      "fixture": "96799ac4-5f5b-4fe0-a64e-2c3962f4dc84",
+      "part_number": "QA07-1792661346643-12"
+    },
+    {
+      "fixture": "506fa741-1747-4558-a2e3-44f7d22f0f2e",
+      "part_number": "QA07-1792661346804-13"
+    },
+    {
+      "supporting": "15 calendar boundaries API only",
+      "reference_date": "2026-10-22",
+      "fixture_ids": [
+        "00c0f872-356a-440a-b64d-8a21528b652f",
+        "5886856b-4a05-4498-b60c-538ec6cdd63c",
+        "be0a0a3c-e37e-417b-a80b-267249175f2c",
+        "5ada4443-68f1-4e5a-ae16-28a84a7328dc"
+      ],
+      "overdue": {
+        "evaluated_on": "2026-10-22",
+        "plant_zone": "Etc/UTC",
+        "items": [
+          {
+            "action_id": "5e93e7d6-0a1b-4bd5-a12f-471a093e697a",
+            "defect_id": "96799ac4-5f5b-4fe0-a64e-2c3962f4dc84",
+            "owner_name": "Sample Engineer",
+            "due_date": "2020-01-01",
+            "status": "In Progress",
+            "days_overdue": 2486
+          },
+          {
+            "action_id": "00c0f872-356a-440a-b64d-8a21528b652f",
+            "defect_id": "506fa741-1747-4558-a2e3-44f7d22f0f2e",
+            "owner_name": "Sample Engineer",
+            "due_date": "2026-10-21",
+            "status": "Open",
+            "days_overdue": 1
+          }
+        ],
+        "next_cursor": null
+      },
+      "action_cycles": [
+        {
+          "id": "74d6bfa1-5ef0-4704-b977-b80db04908c0",
+          "action_id": "5e93e7d6-0a1b-4bd5-a12f-471a093e697a",
+          "defect_id": "96799ac4-5f5b-4fe0-a64e-2c3962f4dc84",
+          "old_status": null,
+          "new_status": "Open",
+          "actor_ref": "sample-supervisor",
+          "occurred_at": "2026-10-22T09:29:06.679222Z",
+          "aggregate_revision": 4,
+          "completion_notes": null,
+          "reopen_reason": null
+        },
+        {
+          "id": "a75c6c3a-e207-44fe-a3b3-54b5c4d82bc7",
+          "action_id": "5e93e7d6-0a1b-4bd5-a12f-471a093e697a",
+          "defect_id": "96799ac4-5f5b-4fe0-a64e-2c3962f4dc84",
+          "old_status": "Open",
+          "new_status": "Complete",
+          "actor_ref": "sample-supervisor",
+          "occurred_at": "2026-10-22T09:29:06.721390Z",
+          "aggregate_revision": 5,
+          "completion_notes": "Synthetic completion evidence",
+          "reopen_reason": null
+        },
+        {
+          "id": "7a6bb48f-60b6-4a5a-b41d-091a60e95180",
+          "action_id": "5e93e7d6-0a1b-4bd5-a12f-471a093e697a",
+          "defect_id": "96799ac4-5f5b-4fe0-a64e-2c3962f4dc84",
+          "old_status": "Complete",
+          "new_status": "In Progress",
+          "actor_ref": "sample-supervisor",
+          "occurred_at": "2026-10-22T09:29:06.763950Z",
+          "aggregate_revision": 8,
+          "completion_notes": null,
+          "reopen_reason": "Recheck after explicit parent reopening"
+        }
+      ]
+    },
+    {
+      "supporting": "15-19 API only",
+      "defect_id": "96799ac4-5f5b-4fe0-a64e-2c3962f4dc84",
+      "history": [
+        {
+          "id": "16e5f0a8-7fcc-4214-a5ae-a31dbad6f216",
+          "old_status": "Open",
+          "new_status": "Under Investigation",
+          "actor_ref": "sample-engineer",
+          "occurred_at": "2026-10-22T09:29:06.668766Z",
+          "aggregate_revision": 3
+        },
+        {
+          "id": "b6e5448d-6aff-43ae-994c-8594f9bdcbf7",
+          "old_status": "Under Investigation",
+          "new_status": "Closed",
+          "actor_ref": "sample-supervisor",
+          "occurred_at": "2026-10-22T09:29:06.733304Z",
+          "aggregate_revision": 6
+        },
+        {
+          "id": "1a22d8d3-5f46-4b59-a4c7-e2649930eb6b",
+          "old_status": "Closed",
+          "new_status": "Under Investigation",
+          "actor_ref": "sample-supervisor",
+          "occurred_at": "2026-10-22T09:29:06.752734Z",
+          "aggregate_revision": 7
+        }
+      ]
+    },
+    {
+      "case": "15-19 supporting backend evidence only; missing browser journeys are not passes",
+      "status": "passed",
+      "at": "2026-10-22T09:29:07.323Z"
+    },
+    {
+      "fixture": "048063e4-13e3-4e5d-85d8-136e935b6575",
+      "part_number": "QA07-1792661347483-14"
+    },
+    {
+      "case": "20",
+      "defect_id": "048063e4-13e3-4e5d-85d8-136e935b6575",
+      "writes": 1,
+      "actions": [
+        {
+          "id": "f76c946c-0cab-44e8-9fe0-a32cdb339eb6",
+          "defect_id": "048063e4-13e3-4e5d-85d8-136e935b6575",
+          "description": "QA07-lost-1792661347970",
+          "owner_ref": "sample-engineer",
+          "due_date": "2026-11-01",
+          "status": "Open",
+          "revision": 2
+        }
+      ],
+      "ui": "Unconfirmed warning; refreshed associated action visible; draft retained; no retry"
+    },
+    {
+      "case": "20 lose response after actual commit; one POST and UI reconciliation",
+      "status": "passed",
+      "at": "2026-10-22T09:29:08.185Z"
+    }
+  ],
+  "http": [
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/a170702b-6d60-4094-846e-15e287cc334c",
+      "status": 200,
+      "etag": "\"1\""
+    },
+    {
+      "method": "GET",
+      "path": "/defects/a170702b-6d60-4094-846e-15e287cc334c/causes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/a170702b-6d60-4094-846e-15e287cc334c/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/a170702b-6d60-4094-846e-15e287cc334c/actions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/a170702b-6d60-4094-846e-15e287cc334c/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/a170702b-6d60-4094-846e-15e287cc334c/causes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/a170702b-6d60-4094-846e-15e287cc334c",
+      "status": 200,
+      "etag": "\"5\""
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/303303e2-b358-48b6-a320-af09888d85c7",
+      "status": 200,
+      "etag": "\"1\""
+    },
+    {
+      "method": "GET",
+      "path": "/defects/303303e2-b358-48b6-a320-af09888d85c7/causes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/303303e2-b358-48b6-a320-af09888d85c7/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/303303e2-b358-48b6-a320-af09888d85c7/actions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/303303e2-b358-48b6-a320-af09888d85c7/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/303303e2-b358-48b6-a320-af09888d85c7/causes",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/303303e2-b358-48b6-a320-af09888d85c7",
+      "status": 200,
+      "etag": "\"5\""
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects?part_number=QA07-1792661336237-4",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects?part_number=QA07-1792661338807-5",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/defect-types/7b3e6a4a-023b-56ba-9a5e-b3bf2b43b3ad/retire",
+      "status": 200,
+      "etag": "\"2\"",
+      "code": "SAMPLE-DENT"
+    },
+    {
+      "method": "GET",
+      "path": "/defects?part_number=QA07-retired-rejected",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/88ad2b05-1633-4109-be9c-bc5dbad95441",
+      "status": 200,
+      "etag": "\"1\""
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/98c4f1f6-2da5-412f-99d4-b0d9706c5877",
+      "status": 200,
+      "etag": "\"1\""
+    },
+    {
+      "method": "GET",
+      "path": "/defects/98c4f1f6-2da5-412f-99d4-b0d9706c5877/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/defects/cdcf72ce-297c-4e39-a0a6-26a191d536c9/causes",
+      "status": 201,
+      "etag": "\"2\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/cdcf72ce-297c-4e39-a0a6-26a191d536c9/causes",
+      "status": 201,
+      "etag": "\"3\""
+    },
+    {
+      "method": "GET",
+      "path": "/defects/cdcf72ce-297c-4e39-a0a6-26a191d536c9/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/cdcf72ce-297c-4e39-a0a6-26a191d536c9/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/dce7c15e-7421-466f-990e-4e4811c53c42/actions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/defects/67534ae4-a6e3-40b9-bad6-6d672873b126/causes",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects?part_number=QA07-1792661345538-11",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/causes",
+      "status": 201,
+      "etag": "\"2\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/transitions",
+      "status": 200,
+      "etag": "\"3\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/actions",
+      "status": 201,
+      "etag": "\"4\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/transitions",
+      "status": 409,
+      "code": "actions_incomplete"
+    },
+    {
+      "method": "POST",
+      "path": "/actions/5e93e7d6-0a1b-4bd5-a12f-471a093e697a/transitions",
+      "status": 422,
+      "code": "completion_notes_required"
+    },
+    {
+      "method": "GET",
+      "path": "/overdue-actions",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/actions/5e93e7d6-0a1b-4bd5-a12f-471a093e697a/transitions",
+      "status": 200,
+      "etag": "\"5\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/transitions",
+      "status": 200,
+      "etag": "\"6\""
+    },
+    {
+      "method": "POST",
+      "path": "/actions/5e93e7d6-0a1b-4bd5-a12f-471a093e697a/transitions",
+      "status": 503,
+      "code": "policy_unavailable"
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/transitions",
+      "status": 200,
+      "etag": "\"7\""
+    },
+    {
+      "method": "POST",
+      "path": "/actions/5e93e7d6-0a1b-4bd5-a12f-471a093e697a/transitions",
+      "status": 200,
+      "etag": "\"8\""
+    },
+    {
+      "method": "GET",
+      "path": "/actions/5e93e7d6-0a1b-4bd5-a12f-471a093e697a/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/defects/506fa741-1747-4558-a2e3-44f7d22f0f2e/actions",
+      "status": 201,
+      "etag": "\"2\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/506fa741-1747-4558-a2e3-44f7d22f0f2e/actions",
+      "status": 201,
+      "etag": "\"3\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/506fa741-1747-4558-a2e3-44f7d22f0f2e/actions",
+      "status": 201,
+      "etag": "\"4\""
+    },
+    {
+      "method": "POST",
+      "path": "/defects/506fa741-1747-4558-a2e3-44f7d22f0f2e/actions",
+      "status": 201,
+      "etag": "\"5\""
+    },
+    {
+      "method": "GET",
+      "path": "/overdue-actions?limit=100",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/transitions",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/transitions",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "GET",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/audit.pdf",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "GET",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/audit.pdf",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "GET",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/audit.pdf",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "GET",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/audit.pdf",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/causes",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "POST",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/actions",
+      "status": 403,
+      "code": "forbidden"
+    },
+    {
+      "method": "GET",
+      "path": "/defects/96799ac4-5f5b-4fe0-a64e-2c3962f4dc84/history",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/defect-types",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/production-lines",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/shifts",
+      "status": 200
+    },
+    {
+      "fault": "drop real committed action response",
+      "status": 201,
+      "action_id": "f76c946c-0cab-44e8-9fe0-a32cdb339eb6"
+    },
+    {
+      "method": "GET",
+      "path": "/defects/048063e4-13e3-4e5d-85d8-136e935b6575/actions",
+      "status": 200
+    }
+  ]
+}
