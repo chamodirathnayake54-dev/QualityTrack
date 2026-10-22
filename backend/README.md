@@ -1,8 +1,9 @@
-# QualityTrack backend — Batch A
+# QualityTrack backend — Batches A–C
 
 Disposable, single-plant demo built with Python 3.11, FastAPI, Pydantic 2,
 SQLAlchemy 2, Alembic and PostgreSQL 16. The saved QualityTrack LLD is the design
-contract; this implementation deliberately stops at Batch A.
+contract, narrowed by the settled demo decisions. Batch C is implemented and
+validated in the worktree, pending acceptance; no Batch C commit or push is made.
 
 ## Setup
 
@@ -74,8 +75,8 @@ entrypoint is `python -m qualitytrack.seed`.
 
 ## Implemented API
 
-Swagger UI is `/docs`; the generated schema is `/openapi.json`. Eight operations
-share seven paths:
+Swagger UI is `/docs`; the generated schema is `/openapi.json`. Twenty
+operations share seventeen paths:
 
 | Method | Path | Required authority |
 | --- | --- | --- |
@@ -87,12 +88,24 @@ share seven paths:
 | POST | `/api/v1/defects` | `defect.capture` |
 | GET | `/api/v1/defects/{defect_id}` | `defect.read` |
 | GET | `/api/v1/defects` | `defect.read` |
+| POST | `/api/v1/defects/{defect_id}/causes` | `cause.create` |
+| GET | `/api/v1/defects/{defect_id}/causes` | `defect.read` |
+| GET | `/api/v1/defects/{defect_id}/history` | `defect.read` |
+| POST | `/api/v1/defects/{defect_id}/transitions` | Target/current-state operation grant |
+| POST | `/api/v1/defects/{defect_id}/actions` | `action.assign`, conditional progress/completion authority |
+| GET | `/api/v1/defects/{defect_id}/actions` | `defect.read` |
+| GET | `/api/v1/assignable-users?defect_id={defect_id}` | `action.assign` |
+| POST | `/api/v1/actions/{action_id}/transitions` | Explicit operation and owner/supervisor authority |
+| GET | `/api/v1/actions/{action_id}/history` | Parent `defect.read` |
+| GET | `/api/v1/overdue-actions` | `defect.read` |
+| GET | `/api/v1/defects/{defect_id}/audit.pdf` | `defect.read` and `defect.export` |
+| POST | `/api/v1/defect-types/{type_id}/retire` | `type.retire` and strong type `If-Match` |
 
 Login verifies Argon2id hashes and issues HS256 bearer tokens for 3600 seconds.
 Current identity and persisted permissions are reloaded on requests; persona,
 ownership and display names do not confer authority. The supervisor fixture
 does not have capture authority, and no fixture has type-retirement authority.
-Demo grants for later batches exist in the ERD/fixtures but expose no routes.
+The reserved `analytics.read` grant exposes no analytics routes.
 
 Capture accepts **multipart/form-data** with one `capture` part containing JSON:
 
@@ -125,10 +138,60 @@ including DST, independently of the process timezone. Results order by
 ordering. A changed caller/filter/calendar or tampered token is rejected.
 Pagination is a live view, not an export snapshot.
 
+Workflow writes share the defect-row lock and reload authority after waiting.
+Cause/action creation does not evaluate `If-Match`; status transitions require
+one strong quoted positive parent revision. Missing, malformed, stale and
+current-but-rejected tokens return 428, 400, 412 and 409 respectively.
+Successful writes return the new parent revision and ETag. Causes, action
+descriptions, completion notes and reopening reasons are trimmed nonblank
+strings of at most 2,000 characters.
+
+Investigation requires a saved cause. Closure requires every existing action
+Complete; zero-action closure is explicitly allowed. Adding any action to Closed
+returns 409 `defect_closed`. Existing-action reopening on Closed returns 503
+without mutation. No command implicitly reopens a parent. Complete is not
+effectiveness verified.
+
+Only active `sample-engineer` and `sample-supervisor` are demo-eligible owners.
+Progress/completion requires ownership plus the explicit operation grant, or
+the explicitly bound supervisor fixture plus that grant. Reopening requires
+the supervisor fixture and the corresponding explicit grant. Broader authority
+and eligibility policies fail closed outside demo mode.
+
+Child pages default to 50 items (1–100 allowed). Causes order by
+`recorded_at,id`, actions by ID, and events by parent aggregate revision.
+Signed continuations bind caller, plant and exact parent/action/collection.
+Every page reauthorizes. Completion/reopening events remain append-only and
+preserve every cycle's actor, timestamp, notes and reason.
+
 Errors use safe Problem envelopes and do not echo passwords or raw database
-exceptions. Responses disable caching. There is no photo serving, inline
-child history, cause/action workflow, transitions, overdue endpoint, PDF,
-type-retirement operation or analytics implementation in Batch A.
+exceptions. Responses disable caching. Photo handling, analytics/stubs and
+auditor-story acceptance remain out of scope.
+
+### Batch C reporting and retirement
+
+Overdue means an incomplete action with `due_date` before the evaluated
+plant-local date; due today is excluded. Signed continuations pin the evaluation
+date and zone, bind the caller/context, and recheck current grants and status.
+Days overdue uses calendar-date subtraction, including across DST.
+
+PDF export loads all causes, actions, action events and status history in one
+read-only repeatable-read snapshot. It closes the transaction before rendering
+and rechecks active status plus read/export grants before returning complete
+buffered bytes. A4 tables wrap escaped Latin/WinAnsi text and repeat headers.
+No photos or remote assets are processed; unsupported glyphs or unexpected
+reserved photo evidence fail safely rather than silently losing evidence.
+Automated PDF reconciliation is not visual or accessibility acceptance.
+
+Type retirement shares capture's type-row lock, rechecks authority after
+waiting, and advances the type revision atomically. Authorized missing,
+malformed and stale tokens return 428, 400 and 412; already retired returns 409.
+Historical captured context is preserved. No seed user gains `type.retire`.
+
+OpenAPI declares bearer security, required response fields, typed filters,
+multipart Capture schema linkage, binary PDF responses, Problem media types,
+and applicable If-Match/ETag headers. The runtime authorizes before returning
+missing-token 428, despite declaring the wire header required.
 
 ## Schema and migrations
 
@@ -165,5 +228,8 @@ strict multipart capture, rollback, captured snapshots, lookup retirement lock
 races, cached identity refresh, filters, DST boundaries and caller-bound keyset
 pagination with equal timestamps.
 
-See [Batch A validation](docs/batch-a-validation.md) for recorded results and
-remaining validation limits.
+See [Batch A validation](docs/batch-a-validation.md) for historical results and
+[Batch B validation](docs/batch-b-validation.md) for workflow checks.
+See [Batch C validation](docs/batch-c-validation.md) for the two final full-suite
+runs and [Batch C contract drift](docs/batch-c-contract-drift.md) for the LLD
+comparison, approved exclusions and remaining operational limits.

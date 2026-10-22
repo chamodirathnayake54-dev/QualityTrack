@@ -602,22 +602,23 @@ def test_database_quantity_constraint_rolls_back(database, capture_payload):
         assert session.scalar(select(func.count()).select_from(Defect)) == 0
 
 
+# PUBLIC_INTERFACE
 def test_openapi_batch_boundary(client):
+    """Batches A-C expose exactly the agreed photo-free, analytics-free routes."""
     schema = client.get("/openapi.json").json()
     paths = schema["paths"]
-    assert len(paths) == 7
-    assert sum(len(operations) for operations in paths.values()) == 8
+    assert len(paths) == 17
+    assert sum(len(operations) for operations in paths.values()) == 20
     assert "/api/v1/defects/{defect_id}" in paths
+    assert "/api/v1/overdue-actions" in paths
+    assert "/api/v1/defects/{defect_id}/audit.pdf" in paths
+    assert "/api/v1/defect-types/{type_id}/retire" in paths
     assert not any(
         word in path
         for path in paths
         for word in (
-            "transitions",
-            "causes",
-            "actions",
             "analytics",
-            "audit.pdf",
-            "retire",
+            "/photo",
         )
     )
     assert (
