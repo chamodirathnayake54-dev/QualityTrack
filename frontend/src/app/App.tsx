@@ -2,9 +2,10 @@ import { useEffect } from 'react';
 import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthProvider';
 import { LoginPage } from '../features/auth/LoginPage';
-import { Button, EmptyState, Skeleton } from '../ui';
+import { Button, Skeleton } from '../ui';
 import { DefectListPage } from '../features/defects/DefectListPage';
 import { LogDefectPage } from '../features/defects/LogDefectPage';
+import { WorkflowPage } from '../features/defects/WorkflowPage';
 
 function RouteFocus() {
   const location = useLocation();
@@ -38,16 +39,14 @@ function AppShell() {
   </>;
 }
 
-function FoundationPage({ title }: { title: string }) {
-  return <><h1 tabIndex={-1}>{title}</h1>
-    <EmptyState title="Not available in Batch 1">
-      <p>This route is reserved for a later approved implementation batch. No records are loaded or changed.</p>
-    </EmptyState></>;
-}
-
 function RecordEntry() {
   const { defectId } = useParams();
   return <Navigate to={`/defects/${encodeURIComponent(defectId ?? '')}/causes`} replace />;
+}
+
+function WorkflowRoute({ kind }: { kind: 'causes' | 'investigation' | 'actions' }) {
+  const { defectId } = useParams();
+  return <WorkflowPage key={`${defectId}/${kind}`} kind={kind} />;
 }
 
 function NotFoundPage() {
@@ -56,7 +55,7 @@ function NotFoundPage() {
 
 // PUBLIC_INTERFACE
 export function App() {
-  /** Render the foundation and Batch 2 capture/list; later journey routes remain reserved. */
+  /** Render authenticated defect capture, list and the bounded S2–S4 workflow. */
   return <>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
@@ -66,9 +65,9 @@ export function App() {
           <Route path="/defects" element={<DefectListPage />} />
           <Route path="/defects/new" element={<LogDefectPage />} />
           <Route path="/defects/:defectId" element={<RecordEntry />} />
-          <Route path="/defects/:defectId/causes" element={<FoundationPage title="Record cause" />} />
-          <Route path="/defects/:defectId/investigation" element={<FoundationPage title="Start investigation" />} />
-          <Route path="/defects/:defectId/actions" element={<FoundationPage title="Add corrective action" />} />
+          <Route path="/defects/:defectId/causes" element={<WorkflowRoute kind="causes" />} />
+          <Route path="/defects/:defectId/investigation" element={<WorkflowRoute kind="investigation" />} />
+          <Route path="/defects/:defectId/actions" element={<WorkflowRoute kind="actions" />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>
