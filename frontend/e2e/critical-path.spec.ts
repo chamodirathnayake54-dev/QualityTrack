@@ -119,20 +119,22 @@ test('login → photo-free capture → cause → investigation → Open action',
   await page.getByLabel('Why did this defect occur?', { exact: true }).fill('Fixture clamp was loose');
   await page.getByRole('button', { name: 'Record cause', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Recorded causes' })).toContainText('Fixture clamp was loose');
-  await page.getByRole('link', { name: 'Review investigation step' }).click();
-  await checkScreen(page, 'Start investigation');
+  await page.getByRole('link', { name: 'Investigation', exact: true }).first().click();
+  await checkScreen(page, 'Investigation');
   await expect(page.getByRole('region', { name: 'Recorded causes' })).toContainText('Fixture clamp was loose');
   await page.getByRole('checkbox').check();
   await page.getByRole('button', { name: 'Move to Under Investigation', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Transition history' })).toContainText('Open → Under Investigation');
-  await page.getByRole('link', { name: 'Add corrective action', exact: true }).click();
+  await expect(page.getByRole('region', { name: 'Status history' })).toContainText('Open → Under Investigation');
+  await expect(page.getByRole('checkbox')).toBeDisabled();
+  await expect(page.getByRole('button', { name: 'Move to Under Investigation', exact: true })).toBeDisabled();
+  await page.getByRole('link', { name: 'Add corrective action', exact: true }).first().click();
   await checkScreen(page, 'Add corrective action');
   await page.getByLabel('Description *', { exact: true }).fill('Inspect fixture clamp');
   await page.getByLabel('Owner *', { exact: true }).selectOption('owner-1');
   await page.getByLabel('Due date *', { exact: true }).fill('2026-11-01');
   await page.getByLabel('Status *', { exact: true }).selectOption('Open');
   await page.getByRole('button', { name: 'Add action', exact: true }).click();
-  await expect(page.getByRole('region', { name: 'Associated actions' })).toContainText('Inspect fixture clamp · owner-1 · 2026-11-01 · Open');
+  await expect(page.getByRole('region', { name: 'Associated actions' })).toContainText('Inspect fixture clamp · 2026-11-01 · Open');
   // Long server content must remain readable without expanding the page at either breakpoint.
   await page.getByLabel('Description *', { exact: true }).fill('LongContent'.repeat(150));
   await expect.poll(() => page.evaluate(() =>

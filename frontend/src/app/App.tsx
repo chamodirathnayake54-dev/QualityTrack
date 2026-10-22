@@ -6,6 +6,7 @@ import { Button, Skeleton } from '../ui';
 import { DefectListPage } from '../features/defects/DefectListPage';
 import { LogDefectPage } from '../features/defects/LogDefectPage';
 import { WorkflowPage } from '../features/defects/WorkflowPage';
+import { plantTimeLabel } from '../features/defects/plantTime';
 
 function RouteFocus() {
   const location = useLocation();
@@ -28,7 +29,7 @@ function AppShell() {
     <a href="#main-content" className="sr-only focus:not-sr-only">Skip to content</a>
     <header className="flex flex-wrap items-center justify-between gap-4 border-b border-border bg-surface p-4">
       <div><strong>QualityTrack</strong><p className="text-sm text-muted">
-        {identity?.display_name} · Plant timezone: {identity?.plant_zone}
+        {identity?.display_name} · Plant time: {plantTimeLabel(identity?.plant_zone)}
       </p></div>
       <nav aria-label="Main navigation" className="flex flex-wrap items-center gap-4">
         <NavLink to="/defects">Defects</NavLink>

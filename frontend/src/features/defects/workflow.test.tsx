@@ -79,11 +79,15 @@ describe('workflow read states', () => {
   it.each(['causes', 'investigation', 'actions'])('shows parent loading at direct %s links without mutations', async (kind) => {
     await mount(kind, async (url) => url.endsWith('/defects/d1') ? new Promise(() => {}) : undefined);
     expect(screen.getByText('Loading defect…')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Back to defect' })).toHaveAttribute('href', '/defects/d1');
     expect(screen.queryByText(/Part: P1/)).not.toBeInTheDocument();
   });
   it.each([403, 404, 503])('withholds protected context on parent error %s', async (status) => {
     const { transport } = await mount('causes', async (url) => url.endsWith('/defects/d1') ? failure(status) : undefined);
-    await screen.findByRole('button', { name: 'Retry defect' });
+    if (status === 403) {
+      await screen.findByText("You don't have permission to do this. Your role does not allow this action.");
+      expect(screen.queryByRole('button', { name: 'Retry defect' })).not.toBeInTheDocument();
+    } else await screen.findByRole('button', { name: 'Retry defect' });
     expect(screen.queryByText(/Part: P1/)).not.toBeInTheDocument();
     expect(transport.mock.calls.some(([url]) => String(url).includes('/causes?'))).toBe(false);
   });
@@ -97,17 +101,47 @@ describe('workflow read states', () => {
     expect(screen.getByRole('button', { name: 'Add action' })).toBeDisabled();
     if (state === 'loading') expect(screen.getByText('Loading assignable owners…')).toBeVisible();
     else if (state === 'empty') expect(await screen.findByText('No assignable owners available')).toBeVisible();
-    else expect(await screen.findByRole('button', { name: 'Retry assignable owners' })).toBeVisible();
+    else if (state === 'denied') {
+      expect(await screen.findByText("You don't have permission to assign actions.")).toBeVisible();
+      expect(screen.queryByRole('button', { name: 'Retry assignable owners' })).not.toBeInTheDocument();
+    } else expect(await screen.findByRole('button', { name: 'Retry assignable owners' })).toBeVisible();
   });
   it.each(['causes', 'history', 'actions'])('shows collection error distinctly for %s', async (collection) => {
     const kind = collection === 'history' ? 'investigation' : collection;
     await mount(kind, async (url) => url.includes(`/${collection}?`) ? failure(503) : undefined);
-    const label = collection === 'causes' ? 'recorded causes' : collection === 'history' ? 'transition history' : 'associated actions';
+    const label = collection === 'causes' ? 'recorded causes' : collection === 'history' ? 'status history' : 'associated actions';
     expect(await screen.findByRole('button', { name: `Retry ${label}` })).toBeVisible();
   });
 });
 
 describe('S2 record cause', () => {
+  it('asks before saving a duplicate on a later page, ignoring case and extra spaces', async () => {
+    const confirm = vi.spyOn(window, 'confirm').mockReturnValue(false);
+    try {
+      const { user, transport } = await mount('causes', async (url, init) => {
+        if (url.endsWith('/causes') && init?.method === 'POST') return response(cause, 201);
+        if (url.includes('/causes?')) return response({
+          items: url.includes('cursor=') ? [cause] : [],
+          next_cursor: url.includes('cursor=') ? null : 'later',
+        });
+        return undefined;
+      });
+      await screen.findByText('No cause recorded yet');
+      await user.type(screen.getByLabelText('Why did this defect occur?'), '  LOOSE   clamp  ');
+      await user.click(screen.getByRole('button', { name: 'Record cause' }));
+      await waitFor(() => expect(confirm).toHaveBeenCalledOnce());
+      expect(writes(transport)).toHaveLength(0);
+      expect(screen.getByLabelText('Why did this defect occur?')).toHaveValue('  LOOSE   clamp  ');
+      confirm.mockReturnValue(true);
+      await user.click(screen.getByRole('button', { name: 'Record cause' }));
+      await screen.findByText('Cause recorded');
+      expect(writes(transport)).toHaveLength(1);
+      expect(confirm).toHaveBeenCalledTimes(2);
+    } finally {
+      confirm.mockRestore();
+    }
+  });
+
   it('validates blank and max length, then confirms one additive write without If-Match', async () => {
     let saved = false;
     const { user, transport } = await mount('causes', async (url, init) => {
@@ -127,7 +161,9 @@ describe('S2 record cause', () => {
     await user.type(screen.getByLabelText('Why did this defect occur?'), 'Loose clamp');
     await user.click(screen.getByRole('button', { name: 'Record cause' }));
     expect(await screen.findByText('Cause recorded')).toBeVisible();
-    expect(await screen.findByText(/Loose clamp — Recorded by/)).toBeVisible();
+    expect(await screen.findByText('Loose clamp', { selector: 'li' })).toBeVisible();
+    expect(screen.getAllByRole('link', { name: 'Investigation' })[0]).toHaveAttribute('href', '/defects/d1/investigation');
+    expect(screen.getByRole('link', { name: 'Back to defect' })).toHaveAttribute('href', '/defects/d1');
     const init = writes(transport)[0][1]!;
     expect(JSON.parse(init.body as string)).toEqual({ text: 'Loose clamp' });
     expect(new Headers(init.headers).has('If-Match')).toBe(false);
@@ -158,7 +194,7 @@ describe('S3 reviewed transition', () => {
     await waitFor(() => expect(check).toBeEnabled());
     await user.click(check);
     await user.click(screen.getByRole('button', { name: 'Move to Under Investigation' }));
-    expect(await screen.findByText(/A valid reviewed record revision is required/)).toBeVisible();
+    expect(await screen.findByText(/Reload latest details, then check them/)).toBeVisible();
     expect(writes(transport)).toHaveLength(0);
   });
   it('leaves status unchanged on denied transition without inventing persona authority', async () => {
@@ -168,10 +204,10 @@ describe('S3 reviewed transition', () => {
     await waitFor(() => expect(check).toBeEnabled());
     await user.click(check);
     await user.click(screen.getByRole('button', { name: 'Move to Under Investigation' }));
-    expect(await screen.findByText('Rejected 403')).toBeVisible();
+    expect(await screen.findByText("You don't have permission to move this defect to Under Investigation.")).toBeVisible();
     expect(screen.getByText('Open', { selector: 'span' })).toBeVisible();
     expect(writes(transport)).toHaveLength(1);
-    expect(screen.queryByText('Investigation transition confirmed')).not.toBeInTheDocument();
+    expect(screen.queryByText('Moved to Under Investigation')).not.toBeInTheDocument();
   });
   it.each([400, 409, 412, 428])('handles %s without replay and requires renewed review', async (status) => {
     let revision = 7;
@@ -187,8 +223,8 @@ describe('S3 reviewed transition', () => {
     expect(writes(transport)).toHaveLength(0);
     await user.click(check);
     await user.click(submit);
-    await screen.findByText(status === 412 ? /renewed review; nothing was replayed/
-      : status === 409 ? /Conflict \(409\)/ : status === 400 ? /malformed \(400\)/ : /required \(428\)/);
+    await screen.findByText(status === 412 ? /Someone else updated this defect/
+      : status === 409 ? /This can't be done right now/ : status === 400 ? /Something went wrong with this request/ : /Please tick the box/);
     await waitFor(() => expect(screen.getByRole('checkbox')).toBeEnabled());
     expect(screen.getByRole('checkbox')).not.toBeChecked();
     expect(writes(transport)).toHaveLength(1);
@@ -216,8 +252,12 @@ describe('S3 reviewed transition', () => {
     expect(writes(transport)).toHaveLength(0);
     await user.click(check);
     await user.click(screen.getByRole('button', { name: 'Move to Under Investigation' }));
-    expect(await screen.findByText('Investigation transition confirmed')).toBeVisible();
-    expect(await screen.findByText(/Open → Under Investigation · actor/)).toBeVisible();
+    expect(await screen.findByText('Moved to Under Investigation')).toBeVisible();
+    expect(await screen.findByText(/Open → Under Investigation ·/)).toBeVisible();
+    expect(screen.getByRole('checkbox')).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Move to Under Investigation' })).toBeDisabled();
+    expect(screen.getByRole('heading', { name: 'Investigation' })).toBeVisible();
+    expect(screen.getAllByRole('link', { name: 'Add corrective action' })[0]).toHaveAttribute('href', '/defects/d1/actions');
     expect(JSON.parse(writes(transport)[0][1]!.body as string)).toEqual({ target_status: 'Under Investigation' });
   });
 });
@@ -240,7 +280,7 @@ describe('S4 add corrective action', () => {
     const { user, transport } = await mount('actions', async (_url, init) => init?.method === 'POST' ? failure(403) : undefined);
     await fillAction(user);
     await user.click(screen.getByRole('button', { name: 'Add action' }));
-    expect(await screen.findByText('Rejected 403')).toBeVisible();
+    expect(await screen.findByText("You don't have permission to add corrective actions.")).toBeVisible();
     expect(screen.getByLabelText('Description *')).toHaveValue(' Inspect clamp ');
     expect(screen.queryByText('Corrective action added')).not.toBeInTheDocument();
     expect(writes(transport)).toHaveLength(1);
@@ -266,8 +306,9 @@ describe('S4 add corrective action', () => {
     await user.type(screen.getByLabelText('Completion notes *'), ' Done ');
     await user.click(screen.getByRole('button', { name: 'Add action' }));
     expect(await screen.findByText('Corrective action added')).toBeVisible();
-    expect(await screen.findByText(/Second action · owner/)).toBeVisible();
-    expect(screen.getByText(/Inspect clamp · owner/)).toBeVisible();
+    expect(await screen.findByText(/Second action · 2020/)).toBeVisible();
+    expect(screen.getByText(/Inspect clamp · 2020/)).toBeVisible();
+    expect(screen.getAllByRole('link', { name: 'Back to defect' })[0]).toHaveAttribute('href', '/defects/d1');
     const init = writes(transport)[0][1]!;
     expect(new Headers(init.headers).has('If-Match')).toBe(false);
     expect(JSON.parse(init.body as string)).toEqual({ description: 'Inspect clamp', owner_ref: 'owner', due_date: '2020-01-01', status: 'Complete', completion_notes: 'Done' });
@@ -280,7 +321,7 @@ describe('S4 add corrective action', () => {
     await user.click(screen.getByRole('button', { name: 'Add action' }));
     expect(screen.getByRole('button', { name: 'Adding corrective action…' })).toBeDisabled();
     reject(new TypeError('Network'));
-    expect(await screen.findByText(/The result is unconfirmed/)).toBeVisible();
+    expect(await screen.findByText(/We couldn't confirm whether this was saved/)).toBeVisible();
     await waitFor(() => expect(screen.getByLabelText('Description *')).toHaveValue(' Inspect clamp '));
     expect(writes(transport)).toHaveLength(1);
     expect(screen.queryByText('Corrective action added')).not.toBeInTheDocument();

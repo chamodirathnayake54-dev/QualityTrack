@@ -20,6 +20,20 @@ PRIVATE = Path("/tmp") / f"qualitytrack-demo-{os.getuid()}"
 PG_BIN = Path("/usr/lib/postgresql/16/bin")
 
 
+def _postgres_bin():
+    """Locate PostgreSQL 16 on macOS without altering the Linux default."""
+    if sys.platform != "darwin":
+        return PG_BIN
+    for directory in (
+        Path("/Library/PostgreSQL/16/bin"),
+        Path("/opt/homebrew/opt/postgresql@16/bin"),
+        Path("/usr/local/opt/postgresql@16/bin"),
+    ):
+        if all(os.access(directory / name, os.X_OK) for name in ("initdb", "pg_ctl")):
+            return directory
+    raise RuntimeError("Install PostgreSQL 16 before using the demo database helper")
+
+
 def _private_directory():
     if PRIVATE.is_symlink():
         raise RuntimeError("Private directory must not be a symlink")
@@ -37,7 +51,7 @@ def _private_directory():
 
 def _pg(action, *args):
     result = subprocess.run(
-        [str(PG_BIN / action), *map(str, args)],
+        [str(_postgres_bin() / action), *map(str, args)],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,
     )

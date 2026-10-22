@@ -18,18 +18,27 @@ export class ApiError extends Error {
     public readonly uncertain = false,
   ) {
     /** Initialize safe Problem metadata and the write-outcome uncertainty flag. */
-    super(problem.title);
+    super(friendlyProblem(problem));
     this.name = 'ApiError';
   }
 }
 
+// PUBLIC_INTERFACE
+export function friendlyProblem(problem: Problem): string {
+  /** Translate known outcomes while retaining unknown backend text as a fallback. */
+  if (problem.code === 'invalid_credentials') return 'Username or password is incorrect.';
+  if (problem.code === 'actions_incomplete') return "This can't be done yet: all corrective actions must be completed first.";
+  return fallbackTitles[problem.status] ?? problem.title;
+}
+
 const fallbackTitles: Record<number, string> = {
+  400: 'Something went wrong with this request. We reloaded the page, please try again.',
   401: 'Your session has ended. Sign in again.',
-  403: 'You do not have permission for this request.',
+  403: "You don't have permission to do this. Your role does not allow this action.",
   404: 'The requested record was not found.',
-  409: 'The request conflicts with the current record.',
-  412: 'The record changed. Refresh and review before submitting again.',
-  428: 'A reviewed record revision is required.',
+  409: "This can't be done right now because of the defect's current status.",
+  412: 'Someone else updated this defect. We loaded the latest details. Please check them and try again.',
+  428: 'Please tick the box to confirm you have checked the latest details, then try again.',
   422: 'Check the submitted fields.',
   503: 'The service is unavailable. Try again later.',
 };
@@ -127,7 +136,7 @@ export class ApiClient {
       throw new ApiError({
         status: 0, code: 'network_failure',
         title: method === 'POST'
-          ? 'The result is unconfirmed. Check the record before trying again.'
+          ? "We couldn't confirm whether this was saved. Please check the page before trying again so nothing is saved twice."
           : 'Could not reach the service. Try again.',
       }, method === 'POST');
     } finally {

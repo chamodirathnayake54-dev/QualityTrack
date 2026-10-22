@@ -15,7 +15,7 @@ export function CaptureFields({ draft, errors, choices, update }: {
     {lookupFields.map((field) => <Field key={field.key} label={`${field.label} *`} error={errors[field.key]}>{(props) =>
       <Select {...props} value={draft[field.key]} onChange={(event) => update(field.key, event.target.value)}>
         <option value="">Select {field.label.toLowerCase()}</option>
-        {choices[field.key].map((choice) => <option key={choice.id} value={choice.id}>{choice.code} — {choice.label}</option>)}
+        {choices[field.key].map((choice) => <option key={choice.id} value={choice.id}>{choice.label}</option>)}
       </Select>}</Field>)}
     <RadioGroup legend="Severity *" name="severity" options={severities.map((value) => ({ value, label: value }))}
       value={draft.severity} onChange={(value) => update('severity', value)} error={errors.severity} />
