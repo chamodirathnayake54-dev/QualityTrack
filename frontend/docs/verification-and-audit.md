@@ -2,6 +2,10 @@
 
 ## Scope and prerequisite
 
+The Batch 4 sections below retain the earlier verification record. See
+[OPS-06 Task 1](#ops-06-task-1-dependency-remediation-review) for the current
+dependency review and rerun results.
+
 Checked `git merge-base --is-ancestor e0a24dc HEAD` first: exit **0**.
 Baseline HEAD: `e5c9fe850cdf1c884f0b9a5f51f5db1d809423c5`, clean worktree.
 Only Batch 4 frontend work and generated-artifact ignore rules are proposed.
@@ -87,6 +91,66 @@ or unreviewed dependency migration was applied. A dependency remediation change
 needs reviewed supported upgrade paths plus regression/build/browser testing.
 Do not expose development/test servers to untrusted networks or claim the app
 is security-cleared because functional tests passed.
+
+## OPS-06 Task 1 dependency remediation review
+
+Session: `OPS-06-QualityTrack-Run`, verified 2026-10-22 against HEAD
+`4be660f6c4ad7d1be3f1c642cfe20e18946bd40f`.
+The mandatory ancestry check exited **0**, and `git ls-files
+frontend/package.json backend/qualitytrack/main.py` listed both files.
+Pre-existing untracked `.kavia/` and `logs/` directories were left untouched.
+
+### Same-major remediation outcome
+
+**Blocked for dependency remediation, not for verification:** no published
+compatible same-major security fix was found for the reported dependency
+chains. Registry version queries and the installed dependency tree establish:
+
+| Chain | Installed / available evidence | Outcome within approved scope |
+| --- | --- | --- |
+| Production Router | `react-router-dom` and `react-router` are already **6.30.6**, the latest published 6.x release. Both root advisory ranges extend to `<7.18.0`. | No 6.x patch available; production findings remain open. |
+| Vitest tooling | `vitest` and `@vitest/mocker` are already **3.2.7**, the latest 3.x releases; installed `tinypool` **1.1.1** is the latest 1.x. Mocker fixes require 4.1.12 for both advisories; Tinypool fixes require 2.1.2. | No compatible same-major patch; findings remain open. |
+| Tailwind / Braces | Installed `tailwindcss` **3.4.17**; latest 3.x **3.4.19** still uses Chokidar 3, Micromatch 4, PostCSS Nested 6 and selector-parser 6. Installed `braces` **3.0.3** is the latest published release and remains affected. | A Tailwind patch bump would not resolve these advisories, so no ineffective bump was applied. |
+| Selector parsing / glob chain | Installed selector-parser **6.1.5**, PostCSS Nested **6.2.0** and Fast Glob **3.3.3** are already their latest same-major releases. Selector-parser fixes require **7.1.6**; Braces remains vulnerable beneath Fast Glob/Micromatch. | No compatible patched chain found. |
+
+`package.json` and `package-lock.json` are unchanged. No force fix, downgrade,
+major-version migration, override or application-code change was applied.
+The audit's suggested Router 5.3.4 / Vitest 2.0.5 downgrades and Tailwind 4.3.3
+migration are outside this task's scope and were not accepted as safe remedies.
+Resolution requires a published compatible backport, or explicit approval for
+a separately scoped supported-major migration and regression review.
+
+### Verification rerun
+
+All commands ran from `frontend/`. The shell default is Node 18.20.8;
+installation and functional checks used isolated **Node 22.23.4 / npm 10.8.2**
+via `npm exec --yes --package=node@22.23.4 --package=npm@10.8.2 -- <command>`.
+Audit commands used the shell's npm 10.8.2.
+
+| Command | Actual result |
+| --- | --- |
+| `npm ci --no-fund` under Node 22 | Passed; installed from the existing lockfile |
+| `npm test` under Node 22 | **84 passed across 5 files** |
+| `npm run build` under Node 22 | **Passed**; TypeScript no-emit check and Vite production build, 104 modules |
+| `CI=true npm run test:e2e` under Node 22 | **2 passed**, desktop 1280×800 and mobile 360×800 Chromium critical path; no retries |
+| Final `npm audit` | Exit **1**: **12 affected package entries**, 5 moderate, 5 high, 2 critical |
+| Final `npm audit --omit=dev` | Exit **1**: **2 moderate entries**, `react-router` and `react-router-dom` |
+| `git diff --exit-code -- package.json package-lock.json` | Passed; neither dependency file changed |
+
+Initial installation failed with `EACCES` beneath `node_modules`; local
+dependency-directory ownership was repaired and clean installation then passed.
+The initial E2E attempt failed before executing the journey because Chromium
+revision 1248 was missing. Running the locally pinned
+`npx --no-install playwright install chromium` under Node 22 installed the
+matching browser, and a fresh E2E invocation passed both projects.
+Neither failed attempt is counted as a pass.
+
+The E2E still uses mocked HTTP, not a live backend/database. Passing functional
+checks do not close security findings or establish accessibility conformance.
+This update records verification and the remediation limitation only; Task 1's
+requested production vulnerability resolution has **not** been achieved.
+No commit or push was performed, and Task 2 was not started. Stop for requester
+approval before any commit, push or expansion beyond same-major fixes.
 
 ## Accessibility and responsive limits
 
