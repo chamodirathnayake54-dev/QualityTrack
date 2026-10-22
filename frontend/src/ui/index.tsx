@@ -11,3 +11,4 @@ export { StatusBadge } from './StatusBadge';
 export { Skeleton } from './Skeleton';
 export { EmptyState } from './EmptyState';
 export { DataTable } from './DataTable';
+export { Journey } from './Journey';

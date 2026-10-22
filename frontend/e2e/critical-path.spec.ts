@@ -116,6 +116,8 @@ test('login → photo-free capture → cause → investigation → Open action',
   await expect(page.getByText(/Defect logged/)).toBeVisible();
   await page.getByRole('link', { name: 'Continue to record cause' }).click();
   await checkScreen(page, 'Record cause');
+  await expect(page.getByRole('navigation', { name: 'Defect journey' })
+    .getByRole('link', { name: 'Record or review cause' })).toHaveAttribute('aria-current', 'step');
   await page.getByLabel('Why did this defect occur?', { exact: true }).fill('Fixture clamp was loose');
   await page.getByRole('button', { name: 'Record cause', exact: true }).click();
   await expect(page.getByRole('region', { name: 'Recorded causes' })).toContainText('Fixture clamp was loose');
@@ -139,6 +141,28 @@ test('login → photo-free capture → cause → investigation → Open action',
   await page.getByLabel('Description *', { exact: true }).fill('LongContent'.repeat(150));
   await expect.poll(() => page.evaluate(() =>
     document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link', { name: 'Defects' }).click();
+  await checkScreen(page, 'Defects');
+  const region = page.getByRole('region', { name: 'Defects', exact: true });
+  await expect(region.getByRole('link', { name: defect.part_number })).toBeVisible();
+  const layout = await region.evaluate((element) => {
+    const cell = element.querySelector('td')!;
+    const badge = element.querySelector('td span')!;
+    return {
+      mainWidth: document.querySelector('main')!.getBoundingClientRect().width,
+      scrollable: element.scrollWidth > element.clientWidth,
+      wordBreak: getComputedStyle(cell).wordBreak,
+      wrap: getComputedStyle(cell).overflowWrap,
+      badgeWrap: getComputedStyle(badge).whiteSpace,
+      fontSize: getComputedStyle(document.body).fontSize,
+    };
+  });
+  expect(layout.wordBreak).toBe('normal');
+  expect(layout.wrap).toBe('normal');
+  expect(layout.badgeWrap).toBe('nowrap');
+  expect(parseFloat(layout.fontSize)).toBeGreaterThanOrEqual(16);
+  if (page.viewportSize()!.width >= 1200) expect(layout.mainWidth).toBeGreaterThanOrEqual(1152);
+  else expect(layout.scrollable).toBe(true);
   expect(writes).toEqual(['capture', 'cause', 'investigation', 'action']);
   expect(unexpected).toEqual([]);
 });

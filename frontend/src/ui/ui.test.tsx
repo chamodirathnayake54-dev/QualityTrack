@@ -2,12 +2,31 @@ import { useState } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
+import { MemoryRouter } from 'react-router-dom';
 import {
   Alert, Button, DataTable, DateInput, EmptyState, ErrorSummary, Field,
-  RadioGroup, Select, Skeleton, StatusBadge, TextArea, TextInput,
+  Journey, RadioGroup, Select, Skeleton, StatusBadge, TextArea, TextInput,
 } from './index';
 
 describe('shared UI', () => {
+  it('preserves badge labels with supplementary tones and a neutral fallback', () => {
+    render(<><StatusBadge>Critical</StatusBadge><StatusBadge>Unknown status</StatusBadge></>);
+    expect(screen.getByText('Critical')).toHaveClass('whitespace-nowrap', 'text-red-900');
+    expect(screen.getByText('Unknown status')).toHaveClass('text-ink');
+  });
+
+  it('exposes current and saved journey progress without changing destinations', () => {
+    render(<MemoryRouter><Journey current={1} steps={[
+      { href: '/causes', label: 'Cause', complete: true },
+      { href: '/investigation', label: 'Investigation', complete: false },
+      { href: '/actions', label: 'Action', complete: false },
+    ]} /></MemoryRouter>);
+    expect(screen.getByRole('link', { name: 'Cause' })).toHaveAttribute('href', '/causes');
+    expect(screen.getByRole('link', { name: 'Investigation' })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('link', { name: 'Action' })).not.toHaveAttribute('aria-current');
+    expect(screen.getByText('Finished')).toBeVisible();
+  });
+
   it('links labels, hints and invalid feedback to text controls', () => {
     render(<Field label="Part" hint="Use the printed code" error="Required">
       {(props) => <TextInput {...props} />}</Field>);

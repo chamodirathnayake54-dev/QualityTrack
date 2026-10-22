@@ -6,7 +6,7 @@ export function DataTable<T>({ caption, columns, rows, rowKey }: {
   rows: T[]; rowKey: (row: T) => string;
 }) {
   /** Render semantic tabular data in a keyboard-scrollable narrow-screen region. */
-  return <div role="region" aria-label={caption} tabIndex={0} className="overflow-x-auto">
+  return <div role="region" aria-label={caption} tabIndex={0} className="data-table overflow-x-auto">
     <table className="w-full border-collapse bg-surface">
       <caption className="p-3 text-left font-semibold">{caption}</caption>
       <thead><tr>{columns.map((column) => <th key={column.key} scope="col">{column.heading}</th>)}</tr></thead>

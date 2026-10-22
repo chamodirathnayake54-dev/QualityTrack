@@ -3,44 +3,82 @@
 @tailwind utilities;
 
 :root {
-  --canvas: #f8fafc;
+  --canvas: #f4f7fb;
   --surface: #ffffff;
   --border: #cbd5e1;
   --ink: #0f172a;
   --muted: #475569;
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
+  --primary: #2454a4;
+  --primary-hover: #193f80;
   --focus: #2563eb;
   --success: #166534;
   --warning: #92400e;
   --danger: #b91c1c;
   --radius-control: 8px;
-  font-family: system-ui, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.6;
   color: var(--ink);
   background: var(--canvas);
 }
 
 @layer base {
-  body { margin: 0; overflow-wrap: anywhere; }
+  body { margin: 0; overflow-wrap: normal; word-break: normal; }
   *, *::before, *::after { box-sizing: border-box; }
   fieldset { min-inline-size: 0; }
-  input, select, textarea { min-width: 0; max-width: 100%; }
+  input, select, textarea { min-width: 0; max-width: 100%; font: inherit; }
   :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
-  h1 { @apply text-2xl font-bold; }
-  h2 { @apply text-xl font-semibold; }
-  a { @apply text-primary underline underline-offset-2; }
-  th, td { @apply border-b border-border px-4 py-3 text-left align-top; }
+  h1 { @apply text-3xl font-bold tracking-tight; line-height: 1.25; }
+  h2 { @apply text-xl font-semibold; line-height: 1.4; }
+  a { @apply text-primary underline underline-offset-4; }
+  a:hover { color: var(--primary-hover); }
+  th, td { @apply border-b border-border px-4 py-4 text-left align-top; min-width: 9rem; }
+  th { @apply bg-canvas text-sm font-semibold text-muted; }
+  tbody tr:hover { background: #eff6ff; }
+  td a { @apply font-semibold; }
 }
 
 @layer components {
   .control {
     @apply min-h-11 w-full rounded-control border border-border bg-surface px-3 py-2 text-ink;
+    transition: border-color 150ms, box-shadow 150ms;
   }
+  .control:hover:not(:disabled) { border-color: var(--muted); }
   .control[aria-invalid="true"] { @apply border-danger; }
   .control:disabled { @apply cursor-not-allowed bg-canvas text-muted; }
   .page { @apply mx-auto w-full max-w-form space-y-6 p-4 md:p-8; }
+  /* Only the list has this named pagination; capture and journey forms stay narrow. */
+  .page:has(nav[aria-label="Defect pagination"]) { max-width: 80rem; }
   .page > *, .grid > *, header > * { min-width: 0; }
-  .panel { @apply rounded-control border border-border bg-surface p-4 md:p-6; }
+  .panel { @apply rounded-control border border-border bg-surface p-4 md:p-6; box-shadow: 0 3px 12px #0f172a08; }
+  header { box-shadow: 0 2px 8px #0f172a08; }
+  header strong { @apply text-xl tracking-tight text-primary; }
+  .page form:has(input[name="part_number"]) {
+    @apply rounded-control border border-border bg-surface p-4 md:p-6;
+    box-shadow: 0 3px 12px #0f172a08;
+  }
+  .page form > p, .page form [id$="-hint"] { @apply text-sm text-muted; }
+  form > button + a { @apply ml-3 inline-flex min-h-11 items-center; }
+  .ui-button {
+    @apply min-h-11 rounded-control border border-border bg-surface px-4 py-2 font-semibold text-primary;
+    transition: background-color 150ms, box-shadow 150ms;
+  }
+  .ui-button:hover:not(:disabled) { @apply bg-canvas; }
+  .ui-button[type="submit"] { @apply border-primary bg-primary text-white; }
+  .ui-button[type="submit"]:hover:not(:disabled) { @apply bg-primary-hover; }
+  .ui-button:disabled { @apply cursor-not-allowed border-border bg-canvas text-muted; }
+  nav[aria-label="Defect pagination"] { flex-wrap: wrap; }
+  .data-table { @apply rounded-control border border-border bg-surface; box-shadow: 0 3px 12px #0f172a08; }
+  .data-table table { width: 100%; min-width: 72rem; }
+  .data-table caption { @apply border-b border-border p-4; }
+  .data-table th, .data-table td { overflow-wrap: normal; word-break: normal; }
+  .journey { @apply grid w-full gap-3 sm:grid-cols-3; list-style: none; padding: 0; }
+  .journey a { @apply flex min-h-11 items-center gap-2 rounded-control border border-border bg-surface p-3 no-underline; }
+  .journey a[aria-current="step"] { @apply border-primary bg-blue-50 font-semibold; }
+  .journey-marker { @apply flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-border text-sm font-semibold; }
+  .journey a[aria-current="step"] .journey-marker { @apply border-primary bg-primary text-white; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; }
 }
