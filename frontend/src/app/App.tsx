@@ -3,6 +3,8 @@ import { Navigate, NavLink, Outlet, Route, Routes, useLocation, useParams } from
 import { useAuth } from '../features/auth/AuthProvider';
 import { LoginPage } from '../features/auth/LoginPage';
 import { Button, EmptyState, Skeleton } from '../ui';
+import { DefectListPage } from '../features/defects/DefectListPage';
+import { LogDefectPage } from '../features/defects/LogDefectPage';
 
 function RouteFocus() {
   const location = useLocation();
@@ -14,8 +16,9 @@ function RouteFocus() {
 
 function AuthBoundary() {
   const { identity, pending } = useAuth();
+  const location = useLocation();
   if (pending) return <main className="page"><Skeleton label="Loading current identity…" /></main>;
-  return identity ? <Outlet /> : <Navigate to="/login" replace />;
+  return identity ? <Outlet /> : <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
 }
 
 function AppShell() {
@@ -53,15 +56,15 @@ function NotFoundPage() {
 
 // PUBLIC_INTERFACE
 export function App() {
-  /** Render only the approved foundation; business journeys remain unimplemented. */
+  /** Render the foundation and Batch 2 capture/list; later journey routes remain reserved. */
   return <>
     <Routes>
       <Route path="/login" element={<LoginPage />} />
       <Route element={<AuthBoundary />}>
         <Route element={<AppShell />}>
           <Route index element={<Navigate to="/defects" replace />} />
-          <Route path="/defects" element={<FoundationPage title="Defects" />} />
-          <Route path="/defects/new" element={<FoundationPage title="Log defect" />} />
+          <Route path="/defects" element={<DefectListPage />} />
+          <Route path="/defects/new" element={<LogDefectPage />} />
           <Route path="/defects/:defectId" element={<RecordEntry />} />
           <Route path="/defects/:defectId/causes" element={<FoundationPage title="Record cause" />} />
           <Route path="/defects/:defectId/investigation" element={<FoundationPage title="Start investigation" />} />

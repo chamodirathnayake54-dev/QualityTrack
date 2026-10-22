@@ -36,7 +36,8 @@ describe('login and shell', () => {
     let finishMe!: (value: Response) => void;
     const transport = vi.fn<typeof fetch>()
       .mockResolvedValueOnce(response({ access_token: 'token', token_type: 'bearer', expires_in: 3600 }))
-      .mockImplementationOnce(() => new Promise((resolve) => { finishMe = resolve; }));
+      .mockImplementationOnce(() => new Promise((resolve) => { finishMe = resolve; }))
+      .mockImplementation(async () => response({ items: [], next_cursor: null }));
     const query = mount(transport);
     const user = userEvent.setup();
     await user.type(screen.getByLabelText('Username'), 'engineer');
@@ -49,13 +50,13 @@ describe('login and shell', () => {
     expect(await screen.findByRole('navigation', { name: 'Main navigation' })).toBeVisible();
     expect(screen.getByText(/Engineer · Plant timezone: Europe\/London/)).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Defects' })).toHaveFocus();
-    expect(screen.getByText('Not available in Batch 1')).toBeVisible();
+    expect(await screen.findByText('No matching defects')).toBeVisible();
     query.setQueryData(['protected'], { private: true });
     await user.click(screen.getByRole('button', { name: 'Sign out' }));
     expect(await screen.findByRole('heading', { name: 'Sign in to QualityTrack' })).toBeVisible();
     expect(query.getQueryData(['protected'])).toBeUndefined();
     expect(screen.getByLabelText('Password')).toHaveValue('');
-    expect(transport).toHaveBeenCalledTimes(2);
+    expect(transport).toHaveBeenCalledTimes(6);
   });
 
   it('does not enter shell when identity is denied after token issuance', async () => {

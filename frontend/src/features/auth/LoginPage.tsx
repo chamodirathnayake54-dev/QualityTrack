@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { ApiError } from '../../api/client';
 import { Alert, Button, ErrorSummary, Field, TextInput } from '../../ui';
 import { useAuth } from './AuthProvider';
@@ -8,12 +8,15 @@ import { useAuth } from './AuthProvider';
 export function LoginPage() {
   /** Sign in with unchanged credential text, then enter the authenticated shell. */
   const { identity, pending, login } = useAuth();
+  const location = useLocation();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [fields, setFields] = useState<Record<string, string>>({});
   const [message, setMessage] = useState('');
 
-  if (identity) return <Navigate to="/defects" replace />;
+  const from = location.state?.from;
+  const destination = typeof from === 'string' && /^\/defects(?:\/|\?|$)/.test(from) ? from : '/defects';
+  if (identity) return <Navigate to={destination} replace />;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();

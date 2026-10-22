@@ -4,6 +4,7 @@ import { ApiClient } from '../../api/client';
 import type { Identity, TokenResponse } from '../../api/contracts';
 
 type Auth = {
+  client: ApiClient;
   identity: Identity | null;
   pending: boolean;
   login: (username: string, password: string) => Promise<void>;
@@ -58,7 +59,7 @@ export function AuthProvider({ client, children }: { client: ApiClient; children
     }
   };
 
-  return <AuthContext.Provider value={{ identity, pending, login, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ client, identity, pending, login, logout }}>{children}</AuthContext.Provider>;
 }
 
 // PUBLIC_INTERFACE
