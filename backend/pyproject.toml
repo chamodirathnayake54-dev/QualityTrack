@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools==75.8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qualitytrack-backend"
+version = "0.1.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "fastapi==0.115.7",
+  "uvicorn==0.34.0",
+  "pydantic==2.10.6",
+  "SQLAlchemy==2.0.37",
+  "alembic==1.14.1",
+  "psycopg[binary]==3.2.4",
+  "argon2-cffi==23.1.0",
+  "PyJWT==2.10.1",
+  "python-multipart==0.0.20",
+  "reportlab==4.4.3",
+  "pytest==8.3.4",
+  "httpx==0.28.1",
+  "black==24.10.0",
+  "ruff==0.9.6",
+]
+
+[tool.setuptools.packages.find]
+include = ["qualitytrack*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 88
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

@@ -1,0 +1,12 @@
+build/
+dist/
+.env*
+!.env.example
+.demo-postgres/
+.venv*/
+*.egg-info/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
