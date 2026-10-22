@@ -1,8 +1,8 @@
-# QualityTrack backend — Batch A
+# QualityTrack backend — Batches A and B
 
 Disposable, single-plant demo built with Python 3.11, FastAPI, Pydantic 2,
 SQLAlchemy 2, Alembic and PostgreSQL 16. The saved QualityTrack LLD is the design
-contract; this implementation deliberately stops at Batch A.
+contract; this implementation deliberately stops at Batch B, pending acceptance.
 
 ## Setup
 
@@ -74,8 +74,8 @@ entrypoint is `python -m qualitytrack.seed`.
 
 ## Implemented API
 
-Swagger UI is `/docs`; the generated schema is `/openapi.json`. Eight operations
-share seven paths:
+Swagger UI is `/docs`; the generated schema is `/openapi.json`. Seventeen
+operations share fourteen paths:
 
 | Method | Path | Required authority |
 | --- | --- | --- |
@@ -87,6 +87,15 @@ share seven paths:
 | POST | `/api/v1/defects` | `defect.capture` |
 | GET | `/api/v1/defects/{defect_id}` | `defect.read` |
 | GET | `/api/v1/defects` | `defect.read` |
+| POST | `/api/v1/defects/{defect_id}/causes` | `cause.create` |
+| GET | `/api/v1/defects/{defect_id}/causes` | `defect.read` |
+| GET | `/api/v1/defects/{defect_id}/history` | `defect.read` |
+| POST | `/api/v1/defects/{defect_id}/transitions` | Target/current-state operation grant |
+| POST | `/api/v1/defects/{defect_id}/actions` | `action.assign`, conditional progress/completion authority |
+| GET | `/api/v1/defects/{defect_id}/actions` | `defect.read` |
+| GET | `/api/v1/assignable-users?defect_id={defect_id}` | `action.assign` |
+| POST | `/api/v1/actions/{action_id}/transitions` | Explicit operation and owner/supervisor authority |
+| GET | `/api/v1/actions/{action_id}/history` | Parent `defect.read` |
 
 Login verifies Argon2id hashes and issues HS256 bearer tokens for 3600 seconds.
 Current identity and persisted permissions are reloaded on requests; persona,
@@ -125,10 +134,35 @@ including DST, independently of the process timezone. Results order by
 ordering. A changed caller/filter/calendar or tampered token is rejected.
 Pagination is a live view, not an export snapshot.
 
+Workflow writes share the defect-row lock and reload authority after waiting.
+Cause/action creation does not evaluate `If-Match`; status transitions require
+one strong quoted positive parent revision. Missing, malformed, stale and
+current-but-rejected tokens return 428, 400, 412 and 409 respectively.
+Successful writes return the new parent revision and ETag. Causes, action
+descriptions, completion notes and reopening reasons are trimmed nonblank
+strings of at most 2,000 characters.
+
+Investigation requires a saved cause. Closure requires every existing action
+Complete; zero-action closure is explicitly allowed. Adding any action to Closed
+returns 409 `defect_closed`. Existing-action reopening on Closed returns 503
+without mutation. No command implicitly reopens a parent. Complete is not
+effectiveness verified.
+
+Only active `sample-engineer` and `sample-supervisor` are demo-eligible owners.
+Progress/completion requires ownership plus the explicit operation grant, or
+the explicitly bound supervisor fixture plus that grant. Reopening requires
+the supervisor fixture and the corresponding explicit grant. Broader authority
+and eligibility policies fail closed outside demo mode.
+
+Child pages default to 50 items (1–100 allowed). Causes order by
+`recorded_at,id`, actions by ID, and events by parent aggregate revision.
+Signed continuations bind caller, plant and exact parent/action/collection.
+Every page reauthorizes. Completion/reopening events remain append-only and
+preserve every cycle's actor, timestamp, notes and reason.
+
 Errors use safe Problem envelopes and do not echo passwords or raw database
-exceptions. Responses disable caching. There is no photo serving, inline
-child history, cause/action workflow, transitions, overdue endpoint, PDF,
-type-retirement operation or analytics implementation in Batch A.
+exceptions. Responses disable caching. Photo serving, overdue, PDF, type
+retirement and analytics remain unimplemented; Batch C has not started.
 
 ## Schema and migrations
 
@@ -165,5 +199,5 @@ strict multipart capture, rollback, captured snapshots, lookup retirement lock
 races, cached identity refresh, filters, DST boundaries and caller-bound keyset
 pagination with equal timestamps.
 
-See [Batch A validation](docs/batch-a-validation.md) for recorded results and
-remaining validation limits.
+See [Batch A validation](docs/batch-a-validation.md) for historical results and
+[Batch B validation](docs/batch-b-validation.md) for the current workflow checks.

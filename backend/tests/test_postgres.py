@@ -605,16 +605,14 @@ def test_database_quantity_constraint_rolls_back(database, capture_payload):
 def test_openapi_batch_boundary(client):
     schema = client.get("/openapi.json").json()
     paths = schema["paths"]
-    assert len(paths) == 7
-    assert sum(len(operations) for operations in paths.values()) == 8
+    assert len(paths) == 14
+    assert sum(len(operations) for operations in paths.values()) == 17
     assert "/api/v1/defects/{defect_id}" in paths
     assert not any(
         word in path
         for path in paths
         for word in (
-            "transitions",
-            "causes",
-            "actions",
+            "overdue",
             "analytics",
             "audit.pdf",
             "retire",

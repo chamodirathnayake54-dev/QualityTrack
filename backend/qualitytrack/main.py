@@ -1,4 +1,4 @@
-"""FastAPI entry point for Batch A only."""
+"""FastAPI entry point for accepted Batch A and proposed Batch B."""
 
 from contextlib import asynccontextmanager
 from typing import Annotated
@@ -29,6 +29,7 @@ from qualitytrack.schemas import (
     TypePage,
 )
 from qualitytrack.security import issue_token, load_principal, require, verify_token
+from qualitytrack.workflow_routes import workflow_router
 
 ERRORS = {
     status: {"model": Problem, "description": description}
@@ -66,11 +67,17 @@ def create_app(settings: Settings | None = None, session_factory=None):
 
     application = FastAPI(
         title="QualityTrack",
-        description="Single-plant demo API. Batch A only; photo upload disabled.",
+        description=(
+            "Single-plant demo API. Capture and workflow; photo upload disabled."
+        ),
         version="0.1.0",
         openapi_tags=[
             {"name": "identity", "description": "Local demo identity"},
             {"name": "lookups", "description": "Active capture choices"},
+            {
+                "name": "workflow",
+                "description": "Causes, lifecycle, actions and retained evidence",
+            },
             {
                 "name": "defects",
                 "description": "Photo-free capture and permitted reads",
@@ -144,6 +151,10 @@ def create_app(settings: Settings | None = None, session_factory=None):
 
     DB = Annotated[Session, Depends(session_dependency)]
     Caller = Annotated[object, Depends(principal_dependency)]
+
+    application.include_router(
+        workflow_router(session_dependency, principal_dependency)
+    )
 
     @application.middleware("http")
     async def private_responses(request, call_next):
