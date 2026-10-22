@@ -1,8 +1,9 @@
-# QualityTrack backend — Batches A and B
+# QualityTrack backend — Batches A–C
 
 Disposable, single-plant demo built with Python 3.11, FastAPI, Pydantic 2,
 SQLAlchemy 2, Alembic and PostgreSQL 16. The saved QualityTrack LLD is the design
-contract; this implementation deliberately stops at Batch B, pending acceptance.
+contract, narrowed by the settled demo decisions. Batch C is implemented and
+validated in the worktree, pending acceptance; no Batch C commit or push is made.
 
 ## Setup
 
@@ -74,8 +75,8 @@ entrypoint is `python -m qualitytrack.seed`.
 
 ## Implemented API
 
-Swagger UI is `/docs`; the generated schema is `/openapi.json`. Seventeen
-operations share fourteen paths:
+Swagger UI is `/docs`; the generated schema is `/openapi.json`. Twenty
+operations share seventeen paths:
 
 | Method | Path | Required authority |
 | --- | --- | --- |
@@ -96,12 +97,15 @@ operations share fourteen paths:
 | GET | `/api/v1/assignable-users?defect_id={defect_id}` | `action.assign` |
 | POST | `/api/v1/actions/{action_id}/transitions` | Explicit operation and owner/supervisor authority |
 | GET | `/api/v1/actions/{action_id}/history` | Parent `defect.read` |
+| GET | `/api/v1/overdue-actions` | `defect.read` |
+| GET | `/api/v1/defects/{defect_id}/audit.pdf` | `defect.read` and `defect.export` |
+| POST | `/api/v1/defect-types/{type_id}/retire` | `type.retire` and strong type `If-Match` |
 
 Login verifies Argon2id hashes and issues HS256 bearer tokens for 3600 seconds.
 Current identity and persisted permissions are reloaded on requests; persona,
 ownership and display names do not confer authority. The supervisor fixture
 does not have capture authority, and no fixture has type-retirement authority.
-Demo grants for later batches exist in the ERD/fixtures but expose no routes.
+The reserved `analytics.read` grant exposes no analytics routes.
 
 Capture accepts **multipart/form-data** with one `capture` part containing JSON:
 
@@ -161,8 +165,33 @@ Every page reauthorizes. Completion/reopening events remain append-only and
 preserve every cycle's actor, timestamp, notes and reason.
 
 Errors use safe Problem envelopes and do not echo passwords or raw database
-exceptions. Responses disable caching. Photo serving, overdue, PDF, type
-retirement and analytics remain unimplemented; Batch C has not started.
+exceptions. Responses disable caching. Photo handling, analytics/stubs and
+auditor-story acceptance remain out of scope.
+
+### Batch C reporting and retirement
+
+Overdue means an incomplete action with `due_date` before the evaluated
+plant-local date; due today is excluded. Signed continuations pin the evaluation
+date and zone, bind the caller/context, and recheck current grants and status.
+Days overdue uses calendar-date subtraction, including across DST.
+
+PDF export loads all causes, actions, action events and status history in one
+read-only repeatable-read snapshot. It closes the transaction before rendering
+and rechecks active status plus read/export grants before returning complete
+buffered bytes. A4 tables wrap escaped Latin/WinAnsi text and repeat headers.
+No photos or remote assets are processed; unsupported glyphs or unexpected
+reserved photo evidence fail safely rather than silently losing evidence.
+Automated PDF reconciliation is not visual or accessibility acceptance.
+
+Type retirement shares capture's type-row lock, rechecks authority after
+waiting, and advances the type revision atomically. Authorized missing,
+malformed and stale tokens return 428, 400 and 412; already retired returns 409.
+Historical captured context is preserved. No seed user gains `type.retire`.
+
+OpenAPI declares bearer security, required response fields, typed filters,
+multipart Capture schema linkage, binary PDF responses, Problem media types,
+and applicable If-Match/ETag headers. The runtime authorizes before returning
+missing-token 428, despite declaring the wire header required.
 
 ## Schema and migrations
 
@@ -200,4 +229,7 @@ races, cached identity refresh, filters, DST boundaries and caller-bound keyset
 pagination with equal timestamps.
 
 See [Batch A validation](docs/batch-a-validation.md) for historical results and
-[Batch B validation](docs/batch-b-validation.md) for the current workflow checks.
+[Batch B validation](docs/batch-b-validation.md) for workflow checks.
+See [Batch C validation](docs/batch-c-validation.md) for the two final full-suite
+runs and [Batch C contract drift](docs/batch-c-contract-drift.md) for the LLD
+comparison, approved exclusions and remaining operational limits.

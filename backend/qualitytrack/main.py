@@ -1,4 +1,4 @@
-"""FastAPI entry point for accepted Batch A and proposed Batch B."""
+"""FastAPI entry point for the bounded single-plant demo."""
 
 from contextlib import asynccontextmanager
 from typing import Annotated
@@ -17,6 +17,8 @@ from qualitytrack.config import Settings
 from qualitytrack.defects import capture_defect, defect_view, get_defect, list_defects
 from qualitytrack.errors import Failure, Problem, problem_response
 from qualitytrack.models import DefectType, ProductionLine, Shift
+from qualitytrack.openapi import install_openapi
+from qualitytrack.reporting_routes import reporting_router
 from qualitytrack.schemas import (
     Capture,
     DefectPage,
@@ -68,12 +70,17 @@ def create_app(settings: Settings | None = None, session_factory=None):
     application = FastAPI(
         title="QualityTrack",
         description=(
-            "Single-plant demo API. Capture and workflow; photo upload disabled."
+            "Single-plant demo API. Capture, workflow, overdue work and photo-free "
+            "evidence export. Photos and analytics are outside scope."
         ),
         version="0.1.0",
         openapi_tags=[
             {"name": "identity", "description": "Local demo identity"},
             {"name": "lookups", "description": "Active capture choices"},
+            {
+                "name": "reporting",
+                "description": "Overdue work and complete PDF evidence",
+            },
             {
                 "name": "workflow",
                 "description": "Causes, lifecycle, actions and retained evidence",
@@ -154,6 +161,9 @@ def create_app(settings: Settings | None = None, session_factory=None):
 
     application.include_router(
         workflow_router(session_dependency, principal_dependency)
+    )
+    application.include_router(
+        reporting_router(session_dependency, principal_dependency)
     )
 
     @application.middleware("http")
@@ -365,6 +375,7 @@ def create_app(settings: Settings | None = None, session_factory=None):
         response.headers["ETag"] = f'"{row.revision}"'
         return defect_view(row)
 
+    install_openapi(application)
     return application
 
 
