@@ -69,7 +69,11 @@ def overdue_actions(session, caller, settings, cursor=None, limit=50, now=None):
     if cursor:
         raw = _cursor(settings, caller, context, token=cursor)
         try:
-            if not isinstance(raw, list) or len(raw) != 3:
+            if (
+                not isinstance(raw, list)
+                or len(raw) != 3
+                or not isinstance(raw[2], str)
+            ):
                 raise ValueError
             evaluated, due, identifier = (
                 date.fromisoformat(raw[0]),

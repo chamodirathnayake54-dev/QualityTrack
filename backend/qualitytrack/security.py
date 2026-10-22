@@ -135,7 +135,7 @@ def decode_cursor(settings, principal, filters, token):
         if any(payload.get(key) != value for key, value in expected.items()):
             raise ValueError
         instant = datetime.fromisoformat(payload["at"])
-        if instant.tzinfo is None:
+        if instant.tzinfo is None or not isinstance(payload["id"], str):
             raise ValueError
         identifier = UUID(payload["id"])
         return instant, identifier
