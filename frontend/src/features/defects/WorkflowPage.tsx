@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Journey } from '../../ui/Journey';
 import { Alert, Button, DateInput, EmptyState, ErrorSummary, Field, Select, TextArea } from '../../ui';
 import { useWorkflow } from './useWorkflow';
 import { ReadFeedback } from './ReadFeedback';
@@ -70,12 +71,14 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
     <ErrorSummary errors={Object.values(w.errors).map((label) => ({ label }))} />
     <ReadFeedback label="defect" pending={w.parent.isPending || w.parent.isFetching} error={w.parent.error}
       empty={false} retry={() => { void w.refresh(); }} />
-    <nav aria-label="Defect journey" className="flex flex-wrap gap-4">
-      <Link to={link}>Back to defect</Link>
-      <Link to={`${link}/causes`}>Record or review cause</Link>
-      <Link to={`${link}/investigation`}>Investigation</Link>
-      <Link to={`${link}/actions`}>Add corrective action</Link>
-    </nav>
+    <Journey current={kind} backHref={link} steps={[
+      { key: 'causes', label: 'Record or review cause', href: `${link}/causes`,
+        complete: Boolean(w.causes.data?.pages.some((page) => page.items.length > 0)) },
+      { key: 'investigation', label: 'Investigation', href: `${link}/investigation`,
+        complete: w.investigationReached },
+      { key: 'actions', label: 'Add corrective action', href: `${link}/actions`,
+        complete: Boolean(w.actions.data?.pages.some((page) => page.items.length > 0)) },
+    ]} />
     {w.parent.isSuccess && !w.parent.isFetching && <>
       <DefectContextSummary defect={w.parent.data.data} />
       {(kind === 'causes' || kind === 'investigation') && <WorkflowCollection title="Recorded causes"
