@@ -47,7 +47,7 @@ W = WorkflowPage, N = NotFoundPage.
 | WorkflowPage | Page presentation itself | No |
 | NotFoundPage | Page presentation itself | No |
 
-**11 / 26 × 100 = 42.31%**, exceeding the delivery target of at least 40%.
+**11 / 26 × 100 = 42.31%**, meeting the delivery target of at least 40%.
 
 The audit-trail correction folds the single-use DateFilters controls into
 DefectListPage and the journey markup into WorkflowPage. The standalone

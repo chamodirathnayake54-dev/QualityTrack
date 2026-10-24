@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { Alert } from './Alert';
 import { StatusBadge } from './StatusBadge';
 
-describe('presentation polish', () => {
+// Journey progress is exercised through WorkflowPage in workflow.test.tsx.
+describe('shared presentation polish', () => {
   it.each(['Open', 'Under Investigation', 'Closed', 'Complete', 'Minor', 'Major', 'Critical'])(
     'keeps %s readable without relying on color',
     (label) => {

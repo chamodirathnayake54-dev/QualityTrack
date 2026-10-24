@@ -4,11 +4,17 @@ import type { ReactNode } from 'react';
 export function Alert({ children, tone = 'info' }: {
   children: ReactNode; tone?: 'info' | 'success' | 'warning' | 'danger';
 }) {
-  /** Announce meaningful text; color is supplementary, never the only signal. */
-  const color = { info: 'text-ink', success: 'text-success', warning: 'text-warning', danger: 'text-danger' }[tone];
-  const icon = { info: 'ℹ', success: '✓', warning: '⚠', danger: '!' }[tone];
+  /** Announce meaningful text; decorative icons and color supplement the message. */
+  const styles = {
+    info: 'border-blue-200 bg-blue-50 text-ink',
+    success: 'border-green-200 bg-green-50 text-success',
+    warning: 'border-amber-200 bg-amber-50 text-warning',
+    danger: 'border-red-200 bg-red-50 text-danger',
+  };
+  const icons = { info: 'ⓘ', success: '✓', warning: '⚠', danger: '!' };
   return <div role={tone === 'danger' ? 'alert' : 'status'}
-    className={`rounded-control border border-border bg-surface p-4 ${color}`}>
-    <span aria-hidden="true">{icon}</span>{' '}{children}
+    className={`flex items-start gap-3 rounded-control border p-4 ${styles[tone]}`}>
+    <span aria-hidden="true" className="shrink-0 font-bold">{icons[tone]}</span>
+    <div className="min-w-0 space-y-2">{children}</div>
   </div>;
 }

@@ -1,7 +1,21 @@
 import type { ReactNode } from 'react';
 
+const tones: Record<string, string> = {
+  Open: 'border-blue-200 bg-blue-50 text-blue-800',
+  'Under Investigation': 'border-amber-200 bg-amber-50 text-amber-900',
+  'In Progress': 'border-amber-200 bg-amber-50 text-amber-900',
+  Closed: 'border-slate-300 bg-slate-100 text-slate-700',
+  Complete: 'border-green-200 bg-green-50 text-green-800',
+  Minor: 'border-slate-300 bg-slate-100 text-slate-700',
+  Major: 'border-amber-200 bg-amber-50 text-amber-900',
+  Critical: 'border-red-200 bg-red-50 text-red-800',
+};
+
 // PUBLIC_INTERFACE
 export function StatusBadge({ children }: { children: ReactNode }) {
-  /** Display caller-supplied status without calculating lifecycle policy. */
-  return <span className="inline-block whitespace-nowrap rounded-control border border-border px-2 py-1 text-sm font-semibold text-ink">{children}</span>;
+  /** Style known labels without inferring lifecycle policy; retain unknown text. */
+  const tone = typeof children === 'string' ? tones[children] : undefined;
+  return <span className={`inline-block whitespace-nowrap rounded-full border px-3 py-1 text-sm font-semibold ${tone ?? 'border-border bg-canvas text-ink'}`}>
+    {children}
+  </span>;
 }
