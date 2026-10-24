@@ -3,7 +3,7 @@ import { Alert, Button, DateInput, EmptyState, ErrorSummary, Field, Select, Text
 import { useWorkflow } from './useWorkflow';
 import { AuditExport } from './AuditExport';
 import { ReadFeedback } from './ReadFeedback';
-import { AssociatedActionList, DefectContextSummary, EventList, InvestigationSummary, WorkflowCollection } from './WorkflowViews';
+import { AssociatedActionList, CauseList, DefectContextSummary, EventList, InvestigationSummary, WorkflowCollection } from './WorkflowViews';
 import { actionStatuses, type ActionDraft, type Owner } from './workflowValidation';
 import type { Errors } from './validation';
 
@@ -102,8 +102,7 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
       <AuditExport record={w} />
       {(kind === 'causes' || kind === 'investigation') && <WorkflowCollection title="Recorded causes"
         empty={kind === 'investigation' ? 'No recorded cause. Record a cause before starting investigation' : 'No cause recorded yet'} query={w.causes}>
-        <ul>{w.causes.data?.pages.flatMap((page) => page.items).map((cause) =>
-          <li key={cause.id}>{cause.text}</li>)}</ul>
+        <CauseList causes={w.causes.data?.pages.flatMap((page) => page.items) ?? []} zone={w.identity?.plant_zone} />
         <p>These are the causes recorded so far. They are not yet confirmed.</p>
       </WorkflowCollection>}
       {kind === 'causes' && <form className="panel space-y-4" noValidate onSubmit={(event) => { event.preventDefault(); void w.submit(); }}>

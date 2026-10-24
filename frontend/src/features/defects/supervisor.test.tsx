@@ -13,8 +13,10 @@ const response = (data: unknown, status = 200, etag?: string) => new Response(JS
     ...(etag ? { ETag: etag } : {}) },
 });
 
-async function mount({ permissions, status = 'Under Investigation', actionStatus = 'Complete', refusal = false, route = '', failureStatus }: {
+async function mount({ permissions, status = 'Under Investigation', actionStatus = 'Complete', refusal = false, route = '', failureStatus,
+  actorRef = 'sample-supervisor', ownerRef = 'u' }: {
   permissions: string[]; status?: string; actionStatus?: string; refusal?: boolean; route?: string; failureStatus?: number;
+  actorRef?: string; ownerRef?: string;
 }) {
   let current = status;
   let revision = 9;
@@ -22,7 +24,7 @@ async function mount({ permissions, status = 'Under Investigation', actionStatus
   const transport = vi.fn<typeof fetch>(async (url, init) => {
     const path = String(url);
     if (path.endsWith('/auth/login')) return response({ access_token: 't', expires_in: 3600 });
-    if (path.endsWith('/me')) return response({ ref: 'u', display_name: 'Reader', plant_zone: 'UTC', permissions });
+    if (path.endsWith('/me')) return response({ ref: actorRef, display_name: 'Reader', plant_zone: 'America/New_York', permissions });
     if (init?.method === 'POST') {
       if (failureStatus) {
         revision++;
@@ -41,12 +43,19 @@ async function mount({ permissions, status = 'Under Investigation', actionStatus
       created_at: '2026-01-01T12:00:00Z', revision, has_photo: false,
     }, 200, `"${revision}"`);
     if (path.includes('/actions?')) return response({ items: [{
-      id: 'a', defect_id: 'd', description: 'Fix clamp', owner_ref: 'u', due_date: '2026-01-02',
+      id: 'a', defect_id: 'd', description: 'Fix clamp', owner_ref: ownerRef, due_date: '2026-01-02',
       status: savedAction, revision: 1,
     }], next_cursor: null });
     if (path.includes('/actions/a/history?')) return response({ items: [{
       id: 'h', old_status: 'Open', new_status: 'Complete', actor_ref: 'worker',
       occurred_at: '2026-01-01T12:00:00Z', completion_notes: 'Clamp checked', reopen_reason: null,
+    }], next_cursor: null });
+    if (path.includes('/causes?')) return response({ items: [{
+      id: 'c', defect_id: 'd', text: 'Loose clamp', recorded_by_ref: 'cause-author',
+      recorded_at: '2026-01-01T12:00:00Z', revision,
+    }, {
+      id: 'c2', defect_id: 'd', text: 'Worn seal', recorded_by_ref: 'second-author',
+      recorded_at: '2026-01-02T12:00:00Z', revision,
     }], next_cursor: null });
     return response({ items: [], next_cursor: null });
   });
@@ -59,7 +68,9 @@ async function mount({ permissions, status = 'Under Investigation', actionStatus
   await user.type(screen.getByLabelText('Username'), 'reader');
   await user.type(screen.getByLabelText('Password'), 'password');
   await user.click(screen.getByRole('button', { name: 'Sign in' }));
-  await screen.findByText('Quantity affected: 2');
+  if (route === '/causes' && permissions.includes('cause.create')) {
+    await screen.findByLabelText('Why did this defect occur?');
+  } else await screen.findByText('Quantity affected: 2');
   const writes = () => transport.mock.calls.filter(([url, init]) =>
     init?.method === 'POST' && !String(url).endsWith('/auth/login'));
   return { user, transport, writes };
@@ -74,6 +85,34 @@ async function confirm(user: ReturnType<typeof userEvent.setup>, label: string) 
 }
 
 describe('supervisor workflows and read-only summary', () => {
+  it.each(['sample-engineer', 'sample-supervisor'])('shows completion to owner or supervisor %s', async (actorRef) => {
+    await mount({ permissions: ['defect.read', 'action.complete'], actionStatus: 'In Progress',
+      actorRef, ownerRef: 'sample-engineer' });
+    expect(await screen.findByLabelText('Completion notes *')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Confirm complete action' })).toBeVisible();
+  });
+
+  it('hides all update controls from an engineer on a supervisor-owned action', async () => {
+    const { writes } = await mount({ permissions: ['defect.read', 'action.progress', 'action.complete', 'action.reopen'],
+      actionStatus: 'Open', actorRef: 'sample-engineer', ownerRef: 'sample-supervisor' });
+    const card = await screen.findByRole('article', { name: 'Fix clamp' });
+    expect(within(card).getByText('Only sample-supervisor or a supervisor can update this action.')).toBeVisible();
+    expect(card.querySelector('form')).toBeNull();
+    expect(within(card).queryByRole('checkbox')).not.toBeInTheDocument();
+    expect(within(card).queryByRole('button')).not.toBeInTheDocument();
+    expect(writes()).toHaveLength(0);
+  });
+
+  it.each(['', '/causes'])('attributes every cause in plant time at %s', async (route) => {
+    await mount({ permissions: ['defect.read', 'cause.create'], route });
+    for (const [author, at] of [['cause-author', '2026-01-01T12:00:00Z'], ['second-author', '2026-01-02T12:00:00Z']]) {
+      const attribution = await screen.findByText(new RegExp(`Recorded by ${author}`));
+      expect(attribution).toHaveTextContent(new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'medium', timeStyle: 'long', timeZone: 'America/New_York',
+      }).format(new Date(at)));
+    }
+  });
+
   it.each([
     ['Open', 'action.progress', 'Start action'],
     ['Complete', 'action.reopen', 'Reopen action'],

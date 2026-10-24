@@ -15,7 +15,8 @@ const response = (data: unknown, status = 200, etag?: string) => new Response(JS
 const captured = { id: 'a', code_at_capture: 'OLD', label_at_capture: 'Scratch' };
 const defect = { id: 'd1', part_number: 'P1', quantity_affected: 1, severity: 'Major', status: 'Open',
   defect_type: captured, production_line: captured, shift: captured, revision: 7, has_photo: false };
-const cause = { id: 'c1', defect_id: 'd1', text: 'Loose clamp', recorded_by_ref: 'u1' };
+const cause = { id: 'c1', defect_id: 'd1', text: 'Loose clamp', recorded_by_ref: 'u1',
+  recorded_at: '2026-01-01T12:00:00Z', revision: 7 };
 const action = { id: 'a1', defect_id: 'd1', description: 'Inspect clamp', owner_ref: 'owner',
   due_date: '2020-01-01', status: 'Open', revision: 8 };
 const owner = { ref: 'owner', display_name: 'Assignable Owner' };

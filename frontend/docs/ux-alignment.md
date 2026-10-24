@@ -78,3 +78,25 @@ mockup element, so the 36/40 = 90% alignment is unchanged. The deviation is list
 here because S2–S4 now carry one extra panel under the defect context. For read-only
 users the button uses the primary style; for users who can change the record it is
 secondary so the page's main action stays the next workflow step.
+
+## UX-15, UX-16 and UX-12 review
+
+The same ten-check-per-screen rubric remains **36/40 = 90%** (S1 9/10,
+S2 9/10, S3 10/10, S4 8/10). CauseList now shows each cause's recorded_by_ref
+and recorded_at through the same actor/plant-time presentation as EventList.
+This enriches the already-matched saved-cause check; it does not earn an extra
+point or remove the S2 ordering deduction.
+
+Summary action forms now require both an explicit grant and the owner/supervisor
+presentation hint in transitionChoices. Only the explicitly server-bound
+sample-supervisor may reopen; owner or supervisor may start/complete with the
+appropriate grant. Hidden forms are replaced with owner guidance. The server
+remains authoritative, including the existing friendly refusal fallback.
+The summary is outside the S1–S4 rubric, so this does not change its score.
+
+Supervisor and auditor list regression tests render the list with inaccessible
+lookup data and URL filter IDs. Defect type, production line and shift selectors
+are omitted, with no unavailable message or visible raw ID. The production list
+already behaved this way; UX-12 needs no further presentation change.
+These are mocked component checks, not real-server browser or persona usability
+testing.

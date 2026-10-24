@@ -1,8 +1,27 @@
 import type { ReactNode } from 'react';
 import type { Defect } from '../../api/defects';
-import type { Action, DefectEvent } from '../../api/workflow';
+import type { Action, Cause, DefectEvent } from '../../api/workflow';
 import { Button, EmptyState, StatusBadge } from '../../ui';
 import { ReadFeedback } from './ReadFeedback';
+
+// PUBLIC_INTERFACE
+export function RecordAttribution({ label, actor, at, zone }: {
+  label: string; actor: string; at: string; zone?: string;
+}) {
+  /** Present server attribution consistently in plant time, without resolving or guessing usernames. */
+  return <span>{label} {actor} ·{' '}
+    {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long', timeZone: zone }).format(new Date(at))}
+  </span>;
+}
+
+// PUBLIC_INTERFACE
+export function CauseList({ causes, zone }: { causes: Cause[]; zone?: string }) {
+  /** Show every saved cause with its server-recorded author and plant-zone timestamp. */
+  return <ul className="space-y-2">{causes.map((cause) => <li key={cause.id}>
+    {cause.text}
+    <p><RecordAttribution label="Recorded by" actor={cause.recorded_by_ref} at={cause.recorded_at} zone={zone} /></p>
+  </li>)}</ul>;
+}
 
 // PUBLIC_INTERFACE
 export function EventList({ events, zone }: {
@@ -11,8 +30,8 @@ export function EventList({ events, zone }: {
 }) {
   /** Present immutable history with attribution, plant-zone time and optional action evidence. */
   return <ul className="space-y-2">{events.map((entry) => <li key={entry.id}>
-    {entry.old_status ?? 'Created'} → {entry.new_status} · Changed by {entry.actor_ref} ·{' '}
-    {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long', timeZone: zone }).format(new Date(entry.occurred_at))}
+    {entry.old_status ?? 'Created'} → {entry.new_status} ·{' '}
+    <RecordAttribution label="Changed by" actor={entry.actor_ref} at={entry.occurred_at} zone={zone} />
     {entry.completion_notes && <p>Completion notes: {entry.completion_notes}</p>}
     {entry.reopen_reason && <p>Reason for reopening: {entry.reopen_reason}</p>}
   </li>)}</ul>;
