@@ -76,6 +76,35 @@ describe('workflow feedback constraints', () => {
 });
 
 describe('workflow read states', () => {
+  it('shows history usernames and journey state without exposing record UUIDs', async () => {
+    const historyId = '11111111-1111-4111-8111-111111111111';
+    await mount('investigation', async (url) => {
+      if (url.includes('/causes?')) return response({ items: [cause], next_cursor: null });
+      if (url.includes('/history?')) return response({ items: [{
+        id: historyId, old_status: 'Open', new_status: 'Under Investigation',
+        actor_ref: 'sample-engineer', occurred_at: '2026-01-01T12:00:00Z', aggregate_revision: 8,
+      }], next_cursor: null });
+      return undefined;
+    });
+    expect(await screen.findByText(/Changed by sample-engineer/)).toBeVisible();
+    expect(screen.queryByText(new RegExp(historyId))).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Record or review cause' })).toHaveTextContent('completed');
+    expect(screen.getByRole('link', { name: 'Investigation' })).toHaveAttribute('aria-current', 'step');
+    expect(screen.getByRole('link', { name: 'Investigation' })).toHaveAccessibleDescription('Current step');
+    const next = screen.getByRole('link', { name: 'Add corrective action' });
+    expect(next).toHaveAttribute('href', '/defects/d1/actions');
+    expect(next).not.toHaveAttribute('aria-current');
+  });
+
+  it('shows the saved owner even when that user is not currently assignable', async () => {
+    const actionId = '22222222-2222-4222-8222-222222222222';
+    await mount('actions', async (url) => url.includes('/actions?')
+      ? response({ items: [{ ...action, id: actionId, owner_ref: 'sample-supervisor' }], next_cursor: null })
+      : undefined);
+    expect(await screen.findByText(/Owner: sample-supervisor/)).toBeVisible();
+    expect(screen.queryByText(new RegExp(actionId))).not.toBeInTheDocument();
+  });
+
   it.each(['causes', 'investigation', 'actions'])('shows parent loading at direct %s links without mutations', async (kind) => {
     await mount(kind, async (url) => url.endsWith('/defects/d1') ? new Promise(() => {}) : undefined);
     expect(screen.getByText('Loading defect…')).toBeVisible();

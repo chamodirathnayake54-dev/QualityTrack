@@ -17,6 +17,7 @@ export function AssociatedActionList({ actions }: { actions: Action[] }) {
   /** Render confirmed action fields without deriving eligibility or effectiveness. */
   return <ul className="space-y-3">{actions.map((action) => <li key={action.id}>
     {action.description} · {action.due_date} · {action.status}
+    {' · '}Owner: {action.owner_ref}
   </li>)}</ul>;
 }
 

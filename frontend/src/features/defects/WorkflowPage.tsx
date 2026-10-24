@@ -57,6 +57,14 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
   const link = `/defects/${encodeURIComponent(w.defectId)}`;
   const busy = w.pending || w.parent.isFetching;
   const ownerReady = w.owners.isSuccess && w.owners.data.items.length > 0;
+  const steps = [
+    { key: 'causes', label: 'Record or review cause', href: `${link}/causes`,
+      complete: Boolean(w.causes.data?.pages.some((page) => page.items.length > 0)) },
+    { key: 'investigation', label: 'Investigation', href: `${link}/investigation`,
+      complete: w.investigationReached },
+    { key: 'actions', label: 'Add corrective action', href: `${link}/actions`,
+      complete: Boolean(w.actions.data?.pages.some((page) => page.items.length > 0)) },
+  ];
   return <div className="space-y-6">
     <h1 tabIndex={-1}>{title}</h1>
     {kind === 'causes' && <p>Describe why this defect happened. Your best answer is fine for now; you can add more later.</p>}
@@ -70,11 +78,21 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
     <ErrorSummary errors={Object.values(w.errors).map((label) => ({ label }))} />
     <ReadFeedback label="defect" pending={w.parent.isPending || w.parent.isFetching} error={w.parent.error}
       empty={false} retry={() => { void w.refresh(); }} />
-    <nav aria-label="Defect journey" className="flex flex-wrap gap-4">
+    <nav aria-label="Defect journey" className="space-y-3">
       <Link to={link}>Back to defect</Link>
-      <Link to={`${link}/causes`}>Record or review cause</Link>
-      <Link to={`${link}/investigation`}>Investigation</Link>
-      <Link to={`${link}/actions`}>Add corrective action</Link>
+      <ol className="journey">
+        {steps.map((step, index) => <li key={step.key}>
+          <Link to={step.href} aria-label={step.label}
+            aria-describedby={step.key === kind || step.complete ? `journey-${step.key}` : undefined}
+            aria-current={step.key === kind ? 'step' : undefined}>
+            <span aria-hidden="true" className="font-semibold">{step.complete ? '✓' : index + 1}</span>
+            {step.label}
+            {step.key === kind
+              ? <span id={`journey-${step.key}`} className="sr-only">Current step</span>
+              : step.complete && <span id={`journey-${step.key}`} className="text-sm text-success"> — completed</span>}
+          </Link>
+        </li>)}
+      </ol>
     </nav>
     {w.parent.isSuccess && !w.parent.isFetching && <>
       <DefectContextSummary defect={w.parent.data.data} />
@@ -93,6 +111,7 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
           <ul>{w.history.data?.pages.flatMap((page) => page.items).map((entry) =>
             <li key={entry.id}>{entry.old_status} → {entry.new_status} ·
               {' '}{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long', timeZone: w.identity?.plant_zone }).format(new Date(entry.occurred_at))}
+              {' · '}Changed by {entry.actor_ref}
             </li>)}</ul>
         </WorkflowCollection>
         <form className="panel space-y-4" noValidate onSubmit={(event) => { event.preventDefault(); void w.submit(); }}>

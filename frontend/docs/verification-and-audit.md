@@ -1,5 +1,85 @@
 # Batch 4 verification and dependency audit
 
+## Audit-trail correction verification
+
+This section supersedes historical verification totals below for this correction.
+The target branch is `polish/frontend-usability-20261024`; the actual starting
+HEAD was `85c1dc5`, differing from the supplied prior-session summary.
+The runtime local branch is `kavia/cm4f9a8a76`. The remote target's commits
+through `bca0018` were merged without rewriting history before final validation.
+`git merge-base --is-ancestor e0a24dc HEAD` exited 0.
+
+Classification: repository implementation defect in presentation. Backend
+`workflow.py` projects `actor_ref` and `owner_ref`; WorkflowPage omitted the
+actor and AssociatedActionList omitted the owner. The correction renders
+`Changed by {entry.actor_ref}` and `Owner: {action.owner_ref}` without changing
+contracts, grants, queries or saved state. Record UUIDs remain hidden in text.
+Focused routed tests cover both labels, hidden UUIDs, historical owners absent
+from assignable choices, and inline journey progress/accessibility.
+
+DateFilters and Journey are now inline page presentation, not distinct
+components. Using the unchanged inventory method gives **11/26 = 42.31% reuse**.
+The unchanged S1–S4 rubric gives **36/40 = 90% UX alignment**. Both meet target.
+
+Fresh commands ran from `frontend/` using
+`npm exec --yes --package=node@22.23.4 --package=npm@10.8.2 -- <command>`:
+
+| Command | Result |
+| --- | --- |
+| `npm test` with `CI=true` | **105 tests passed across 6 files** |
+| `npx --no-install tsc --noEmit` | **Passed** |
+| `npm run test:e2e` with `CI=true` | **2 passed**, desktop and mobile mocked Chromium suites, no retries |
+
+The first unit invocation failed because the WorkflowPage patch had not
+applied, and existing polish tests expected badge classes and decorative alert
+icons absent from the actual worktree. The patch was corrected and those narrow
+presentation expectations restored; only the subsequent complete run is a pass.
+
+Lint remains unavailable (no lint script). Real-stack automated verification
+remains blocked by the previously documented services/QA07 configuration;
+the requester's manual real-stack verification remains pending. Mocked browser
+passes are not backend/database integration or accessibility certification.
+Dependency findings below remain open; dependency files were not changed.
+The requester authorized a correction commit and non-force push, not release
+or pilot acceptance.
+
+## Historical post-polish verification and accepted blockers
+
+This section supersedes the historical approval boundaries below for the
+documentation update following polish commit
+`89f11449d44ded85f485852fedd90303e8db4a8b` on
+`polish/frontend-usability-20261024`. The requester accepts the remaining
+checks as blocked and has authorized committing and pushing these documentation
+updates without force. This is not production-readiness or release approval.
+
+The supplied polish verification record reports **104 unit/component tests
+passed**, TypeScript checking and the production build passed, and desktop/mobile
+mocked Playwright passed. Those are prior-change results, not fresh executions
+for this documentation-only update. They supersede the older 84-test totals
+only for the current polish record; historical results below remain intact.
+
+| Remaining check or capability | Accepted status and evidence |
+| --- | --- |
+| Lint | **Blocked / unavailable.** Lint does not exist: `frontend/package.json` has no lint script, and no frontend lint configuration was found. Build/typecheck and tests are not substitutes for a lint pass. |
+| Real-stack Playwright | **Blocked / not run for this change.** The prior attempt was blocked before journey execution by unavailable services and QA07 configuration. No real-stack journey pass is claimed. The real-stack config expects separately running services; the suite also uses `QA07_PASSWORDS` and `QA07_EVIDENCE`. |
+| Header role label | **Unavailable / not implemented.** `Identity` has no role field. The header renders display name and plant time; permissions must not be converted into an invented role label. |
+
+The requester will verify the real-stack journey manually on their own machine.
+That verification is **pending**, not performed or passed here. The manual
+journey should cover sign-in, photo-free defect capture (S1), recording a cause
+(S2), explicitly moving to Under Investigation (S3), and adding a corrective
+action (S4) against the actual backend/database, then checking saved data after
+re-entry. Manual verification does not retroactively make automated real-stack
+Playwright a pass. The remaining checks stay documented as blocked; this update
+does not install lint tooling, start services or expand the identity contract.
+
+The historical pre-correction figures were **11/28 = 39.29% component reuse** and
+**34/40 = 85% S1–S4 UX alignment**. Both are below the existing targets of 40%
+and 90%, respectively. See [component reuse](component-reuse.md) for the
+corrected denominator and [UX alignment](ux-alignment.md) for the missing
+history-actor and saved-action-owner display deductions. These measurements
+are static review results, not evidence of real-stack acceptance.
+
 ## Scope and prerequisite
 
 The Batch 4 sections below retain the earlier verification record. See
@@ -167,6 +247,7 @@ claimed. See [UX alignment](ux-alignment.md) and [persona review](persona-review
 
 ## Approval boundary
 
-Reports describe current proposed worktree evidence, not release acceptance.
-The requester must approve this Batch 4 proposal before a commit or push.
+The earlier Batch 4 reports describe proposed worktree evidence, not release
+acceptance. Their pre-commit approval gate is historical; the requester's
+current authorization for documentation commit and push is recorded above.
 Known dependency findings and evaluation limitations remain explicitly open.

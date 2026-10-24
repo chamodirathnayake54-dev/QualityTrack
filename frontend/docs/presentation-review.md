@@ -14,11 +14,15 @@ it does not mean they contain literally no conditional rendering.
 | CauseEditor — `src/features/defects/WorkflowPage.tsx` | Label text area, associate helper/error, forward edited text and disabled flag | Pass. Does not require five answers, count saved causes or establish causality |
 | InvestigationSummary — `src/features/defects/WorkflowViews.tsx` | Static requested-status explanation and server-authority caveat | Pass. Does not decide transition eligibility, evaluate presence or choose a revision |
 | CorrectiveActionFields — `src/features/defects/WorkflowPage.tsx` | Render supplied owners/draft/errors, explicit status choices and conditional completion-notes field | Pass with qualification. `status === 'Complete'` is visibility logic mirroring the contract, not authority or acceptance. Validation and eligibility remain elsewhere |
-| AssociatedActionList — `src/features/defects/WorkflowViews.tsx` | Render provided confirmed description, owner reference, calendar date and status, keyed by server ID | Pass. Does not calculate overdue, completion authority or effectiveness |
+| AssociatedActionList — `src/features/defects/WorkflowViews.tsx` | Render provided confirmed description, owner username, calendar date and status, keyed by hidden server ID | Pass for presentation boundary. Does not calculate overdue, completion authority or effectiveness |
 
 InvestigationSummary and AssociatedActionList were previously inline page JSX.
 They are now named, documented exports used by WorkflowPage; their extraction
 does not introduce another data owner or domain layer.
+
+The audit-trail correction renders `Owner: {action.owner_ref}` directly from
+saved action data. It does not resolve ownership through the currently
+assignable-user list, so historical owners remain visible.
 
 ## Responsibility trace
 

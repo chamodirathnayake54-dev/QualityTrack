@@ -13,8 +13,11 @@ No weighting was specified in the proposal; this transparent rubric is local to
 this review. Approved photo-free scope still incurs a visible deduction against
 the original mockup rather than silently removing it from the denominator.
 
-**Result: 36/40 = 90% alignment**, meeting the proposal's requested 90% review
-target under this rubric only. Approval remains with the requester.
+**Audit-trail correction: 36/40 = 90% alignment**, meeting the requested 90%
+target under the unchanged rubric. WorkflowPage renders
+`Changed by {entry.actor_ref}` and AssociatedActionList renders
+`Owner: {action.owner_ref}`. These restore the two checks deducted in the
+previous 34/40 = 85% review. No other score or denominator changed.
 
 ## Checklist
 
@@ -22,8 +25,12 @@ target under this rubric only. Approval remains with the requester.
 | --- | --- | --- | --- |
 | S1 | Heading/required guidance; part input; configured type; positive integer quantity feedback; production line; shift; explicit manual severity; confirmed success/onward link; retained-input/error/loading outcomes | Optional photo control absent (approved photo-free deviation) | 9/10 |
 | S2 | Record/context heading; current status; initial 5-Why framing; labelled prompt; preliminary-cause helper; blank/length feedback; saved-cause list; save/outcome feedback; investigation link | Recorded list precedes editor, whereas mockup places editor before list | 9/10 |
-| S3 | Heading; current status; requested status; recorded causes; preliminary-not-validated explanation; empty-cause guidance/return link; explicit transition control; pending/error outcomes; retained actor/time/old-new history; action onward link | No deductions on these ten semantic checks | 10/10 |
-| S4 | Heading/context/status; description; assignable owner; due date; explicit status; Complete notes/authority caveat; save/error/pending outcomes; retained associated fields | Associated list precedes form rather than follows it; no separate “Add another action” control (cleared form remains available) | 8/10 |
+| S3 | Heading; current status; requested status; recorded causes; preliminary-not-validated explanation; empty-cause guidance/return link; explicit transition control; pending/error outcomes; action onward link; attributable history with old/new status, timestamp and actor | None under this rubric | 10/10 |
+| S4 | Heading/context/status; description; assignable owner; due date; explicit status; Complete notes/authority caveat; save/error/pending outcomes; retained associated description, owner, date and status | Associated list precedes form rather than follows it; no separate “Add another action” control (cleared form remains available) | 8/10 |
+
+The unchanged ten-check denominators give S1 90%, S2 90%, S3 100% and S4 80%.
+The restored fields use existing API data; no API contract changed. Decorative
+icons, badges and progress navigation earn no additional points.
 
 ## Other visible adaptations and qualifications
 
@@ -35,16 +42,15 @@ target under this rubric only. Approval remains with the requester.
 - S3 adds an explicit reviewed-context checkbox and refresh control for ETag
   safety. Its history appears above the request form. These are recorded
   hierarchy additions, not fabricated backend requirements.
-- S4 owner references, rather than resolved display names, are retained in the
-  associated list. The owner selector uses server display names. This is less
-  friendly but unambiguous; identity-name enrichment is not invented.
+- S4's owner selector uses server display names. The associated list shows the
+  saved owner username even if that user is no longer in the assignable list.
 - Memory-only authentication is approved and explained on login.
 - Photo-free messaging is explicit and there is no misleading upload control.
   Optional-photo US-02 acceptance is not claimed.
 
 ## Responsive and accessibility polish
 
-Shared tokens now bound control widths, allow grid children/fieldsets to shrink,
+Shared tokens bound control widths, allow grid children/fieldsets to shrink,
 wrap long text and style panels consistently. Layout remains single-column
 below the existing 48rem breakpoint; list filters use three columns above it.
 DOM order is unchanged by responsive CSS. Native labelled controls, severity
