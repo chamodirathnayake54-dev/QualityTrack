@@ -7,6 +7,8 @@ type RequestOptions = {
   anonymous?: boolean;
   token?: string;
   etag?: string;
+  /** 'blob' downloads a binary file such as the audit PDF; default is JSON. */
+  responseType?: 'json' | 'blob';
 };
 
 /** Transport failure with safe display text and a distinct uncertain-write outcome. */
@@ -87,7 +89,8 @@ export class ApiClient {
     options.signal?.addEventListener('abort', abort, { once: true });
     if (options.signal?.aborted) controller.abort();
     this.pending.add(controller);
-    const headers = new Headers({ Accept: 'application/json' });
+    const wantsFile = options.responseType === 'blob';
+    const headers = new Headers({ Accept: wantsFile ? 'application/pdf' : 'application/json' });
     const token = options.anonymous ? null : options.token ?? this.token;
     if (token) headers.set('Authorization', `Bearer ${token}`);
     if (options.etag !== undefined) headers.set('If-Match', options.etag);
@@ -125,7 +128,8 @@ export class ApiClient {
         if (response.status === 401 && token && generation === this.generation) this.unauthorized?.();
         throw new ApiError(problem);
       }
-      const data = response.status === 204 ? undefined : await response.json();
+      const data = response.status === 204 ? undefined
+        : wantsFile ? await response.blob() : await response.json();
       if (generation !== this.generation || controller.signal.aborted) {
         throw new DOMException('Obsolete request', 'AbortError');
       }
