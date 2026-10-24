@@ -63,3 +63,9 @@ list and S1–S4 at 360×800 and 1280×800, plus a long action draft. It does no
 establish all saved-content extremes, device suitability, keyboard-only task
 completion, 200/400% zoom, contrast in all states, or screen-reader conformance.
 No WCAG 2.2 AA certification is claimed. See [verification](verification-and-audit.md).
+
+## DEV-09 note
+
+The supervisor summary page is outside the S1–S4 mockup set, so the 36/40 = 90%
+alignment is unchanged. The shared history list keeps the S3 attributable-history
+check (old/new status, timestamp, actor) satisfied.
