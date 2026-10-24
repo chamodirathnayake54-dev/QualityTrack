@@ -15,8 +15,13 @@ export type TransitionOptions = Transition & {
 };
 
 // PUBLIC_INTERFACE
-export function transitionChoices(status: string, permissions: readonly string[], action = false): Transition[] {
-  /** Map saved status and explicit grants to presentation choices; the API remains authoritative. */
+export function transitionChoices(
+  status: string, permissions: readonly string[], action = false, actorRef?: string, ownerRef?: string,
+): Transition[] {
+  /** Mirror server owner/supervisor authority as a hint alongside grants; the API remains authoritative. */
+  // workflow.py binds supervisor authority to this explicit fixture, not a role or display name.
+  const supervisor = actorRef === 'sample-supervisor';
+  const owner = Boolean(actorRef && ownerRef && actorRef === ownerRef);
   const choices: (Transition & { permission: string })[] = action
     ? [
       ...(status === 'Open' ? [{ label: 'Start action', target: 'In Progress', permission: 'action.progress' }] : []),
@@ -27,7 +32,8 @@ export function transitionChoices(status: string, permissions: readonly string[]
       ...(status === 'Under Investigation' ? [{ label: 'Close defect', target: 'Closed', permission: 'defect.close' }] : []),
       ...(status === 'Closed' ? [{ label: 'Reopen defect', target: 'Under Investigation', permission: 'defect.reopen' }] : []),
     ];
-  return choices.filter((choice) => permissions.includes(choice.permission))
+  return choices.filter((choice) => permissions.includes(choice.permission)
+    && (!action || (choice.permission === 'action.reopen' ? supervisor : owner || supervisor)))
     .map(({ label, target, evidence }) => ({ label, target, evidence }));
 }
 
@@ -116,7 +122,9 @@ export function useActionSummary(action: Action, record: RecordState, context: s
     retry: false, refetchOnWindowFocus: false, refetchOnReconnect: false,
   });
   return {
-    history, choices: transitionChoices(action.status, record.identity?.permissions ?? [], true),
+    history, choices: transitionChoices(
+      action.status, record.identity?.permissions ?? [], true, record.identity?.ref, action.owner_ref,
+    ),
     ready: ready && history.isSuccess && !history.isFetching,
     context: JSON.stringify([context, action, history.data]),
   };

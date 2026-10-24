@@ -42,6 +42,8 @@ W = WorkflowPage, S = DefectSummaryPage, N = NotFoundPage.
 | DefectContextSummary | W, S | Yes |
 | WorkflowCollection | W, S | Yes |
 | EventList | W (status history), S (defect and action history) | Yes |
+| RecordAttribution | W, S via CauseList and EventList | Yes |
+| CauseList | W (cause and investigation routes), S | Yes |
 | TransitionControl | S | No |
 | ActionCard | S | No |
 | AuditExport | W (cause, investigation and action routes), S | Yes |
@@ -52,7 +54,7 @@ W = WorkflowPage, S = DefectSummaryPage, N = NotFoundPage.
 | DefectSummaryPage | Page presentation itself | No |
 | NotFoundPage | Page presentation itself | No |
 
-**16 / 31 × 100 = 51.61%**, meeting the delivery target of at least 40%.
+**18 / 33 × 100 = 54.55%**, meeting the delivery target of at least 40%.
 
 The audit-trail correction folds the single-use DateFilters controls into
 DefectListPage and the journey markup into WorkflowPage. The standalone
@@ -97,3 +99,13 @@ The denominator grows from 30 to 31 and the numerator from 15 to 16. Button gain
 a `variant` option rather than a new component. The download rules live in
 `useAuditExport.ts` (a hook, excluded from this inventory); AuditExport only presents.
 Counting rules are unchanged.
+
+## UX-15, UX-16 and UX-12 update
+
+CauseList replaces duplicated cause markup in W and S. RecordAttribution is
+consumed transitively by both pages through CauseList and EventList and owns
+the shared actor/plant-time text. These add two reused presentation components:
+16/31 becomes 18/33 = 54.55%. W still counts once, not once per route.
+Action authority hints remain in useTransition.ts (excluded), with no new
+presentation component. UX-12 retains the existing omission of inaccessible
+lookup filters; no component count changes arise from that check.

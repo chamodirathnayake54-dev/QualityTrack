@@ -3,7 +3,7 @@ import type { Action } from '../../api/workflow';
 import { Alert, Button, Field, TextArea } from '../../ui';
 import { AuditExport } from './AuditExport';
 import { ReadFeedback } from './ReadFeedback';
-import { DefectContextSummary, EventList, WorkflowCollection } from './WorkflowViews';
+import { CauseList, DefectContextSummary, EventList, WorkflowCollection } from './WorkflowViews';
 import { useActionSummary, useDefectSummary, useTransition, type TransitionOptions } from './useTransition';
 
 // Presentation only: the controller hooks in useTransition.ts own validation, review and saving.
@@ -48,6 +48,7 @@ function ActionCard({ action, record, context, ready, refresh, reportSuccess }: 
     {summary.choices.map((choice) => <TransitionControl key={`${action.status}-${choice.label}`} {...choice}
       record={record} actionId={action.id} ready={summary.ready} context={summary.context}
       refresh={refresh} reportSuccess={reportSuccess} />)}
+    {!summary.choices.length && <p>Only {action.owner_ref} or a supervisor can update this action.</p>}
   </article>;
 }
 
@@ -81,7 +82,7 @@ export function DefectSummaryPage() {
         {s.links.map((link) => <Link key={link.path} to={`${record.base}/${link.path}`}>{link.label}</Link>)}
       </nav>
       <WorkflowCollection title="Recorded causes" empty="No cause recorded yet" query={causes}>
-        <ul>{causes.data?.pages.flatMap((page) => page.items).map((cause) => <li key={cause.id}>{cause.text}</li>)}</ul>
+        <CauseList causes={causes.data?.pages.flatMap((page) => page.items) ?? []} zone={record.identity?.plant_zone} />
       </WorkflowCollection>
       <WorkflowCollection title="Status history" empty="No status history yet" query={history}>
         <EventList events={history.data?.pages.flatMap((page) => page.items) ?? []} zone={record.identity?.plant_zone} />

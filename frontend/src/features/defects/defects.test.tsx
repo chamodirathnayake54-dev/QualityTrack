@@ -69,6 +69,22 @@ describe('capture validation contract', () => {
 });
 
 describe('defect list component', () => {
+  it.each([
+    ['supervisor', ['defect.read', 'defect.close', 'defect.reopen', 'action.assign']],
+    ['auditor', ['defect.read', 'defect.export']],
+  ])('hides unavailable lookup filters for %s without showing raw IDs', async (_persona, permissions) => {
+    await mount('/defects?defect_type_id=hidden-type&production_line_id=hidden-line&shift_id=hidden-shift',
+      async (url) => url.includes('/defects?')
+        ? response({ items: [defect], next_cursor: null })
+        : response({ code: 'denied', title: 'Denied' }, 403), permissions);
+    expect(await screen.findByRole('link', { name: 'P1' })).toBeVisible();
+    for (const label of ['Defect type', 'Production line', 'Shift']) {
+      expect(screen.queryByLabelText(label)).not.toBeInTheDocument();
+    }
+    expect(screen.queryByText(/unavailable/i)).not.toBeInTheDocument();
+    expect(document.body).not.toHaveTextContent(/hidden-type|hidden-line|hidden-shift/);
+  });
+
   it('shows loading then empty without depending on lookup access', async () => {
     let finish!: (response: Response) => void;
     await mount('/defects', async (url) => url.includes('/defects?')

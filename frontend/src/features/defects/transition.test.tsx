@@ -13,17 +13,25 @@ describe('transition choices', () => {
     ['Under Investigation', false, ['Close defect']],
     ['Closed', false, ['Reopen defect']],
   ] as const)('prepares choices for %s (action=%s)', (status, action, labels) => {
-    expect(transitionChoices(status, permissions, action).map((choice) => choice.label)).toEqual(labels);
-    expect(transitionChoices(status, [], action)).toEqual([]);
+    expect(transitionChoices(status, permissions, action, 'sample-supervisor', 'owner').map((choice) => choice.label)).toEqual(labels);
+    expect(transitionChoices(status, [], action, 'sample-supervisor', 'owner')).toEqual([]);
   });
 
   it('requires distinct evidence for completion and reopening', () => {
-    expect(transitionChoices('Open', ['action.complete'], true)).toEqual([
+    expect(transitionChoices('Open', ['action.complete'], true, 'owner', 'owner')).toEqual([
       { label: 'Complete action', target: 'Complete', evidence: 'completion_notes' },
     ]);
-    expect(transitionChoices('Complete', ['action.reopen'], true)).toEqual([
+    expect(transitionChoices('Complete', ['action.reopen'], true, 'sample-supervisor', 'owner')).toEqual([
       { label: 'Reopen action', target: 'In Progress', evidence: 'reopen_reason' },
     ]);
+  });
+
+  it('requires authority as well as grants and reserves reopening for the supervisor', () => {
+    expect(transitionChoices('Open', permissions, true, 'engineer', 'other')).toEqual([]);
+    expect(transitionChoices('Open', permissions, true)).toEqual([]);
+    expect(transitionChoices('Complete', permissions, true, 'owner', 'owner')).toEqual([]);
+    expect(transitionChoices('Open', permissions, true, 'owner', 'owner')).toHaveLength(2);
+    expect(transitionChoices('Complete', [], true, 'sample-supervisor', 'other')).toEqual([]);
   });
 });
 
@@ -35,7 +43,7 @@ describe('shared history presentation', () => {
       actor_ref: 'worker', occurred_at, aggregate_revision: 3,
       completion_notes: 'Repair checked', reopen_reason: 'More work needed',
     }]} />);
-    expect(screen.getByText(/Created → Complete · Changed by worker/)).toBeVisible();
+    expect(screen.getByText(/Changed by worker/)).toBeVisible();
     expect(screen.getByText(/Created → Complete/)).toHaveTextContent(
       new Intl.DateTimeFormat(undefined, {
         dateStyle: 'medium', timeStyle: 'long', timeZone: 'America/New_York',
