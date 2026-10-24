@@ -18,17 +18,20 @@ export class ApiError extends Error {
     public readonly uncertain = false,
   ) {
     /** Initialize safe Problem metadata and the write-outcome uncertainty flag. */
-    super(friendlyProblem(problem));
+    super(uncertain
+      ? "We couldn't confirm whether this was saved. Please check the page before trying again so nothing is saved twice."
+      : friendlyProblem(problem));
     this.name = 'ApiError';
   }
 }
 
 // PUBLIC_INTERFACE
 export function friendlyProblem(problem: Problem): string {
-  /** Translate known outcomes while retaining unknown backend text as a fallback. */
+  /** Translate known outcomes; never display an unrecognized server title. */
   if (problem.code === 'invalid_credentials') return 'Username or password is incorrect.';
   if (problem.code === 'actions_incomplete') return "This can't be done yet: all corrective actions must be completed first.";
-  return fallbackTitles[problem.status] ?? problem.title;
+  if (problem.status === 0 && problem.code === 'network_failure') return 'Could not reach the service. Try again.';
+  return fallbackTitles[problem.status] ?? 'The request could not complete. Please try again later.';
 }
 
 const fallbackTitles: Record<number, string> = {
