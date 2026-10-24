@@ -49,6 +49,14 @@ W = WorkflowPage, N = NotFoundPage.
 
 **11 / 26 × 100 = 42.31%**, exceeding the delivery target of at least 40%.
 
+The audit-trail correction folds the single-use DateFilters controls into
+DefectListPage and the journey markup into WorkflowPage. The standalone
+Journey module is removed. Evidence is `<Field label="Start date">` in
+DefectListPage and `<nav aria-label="Defect journey">` in WorkflowPage.
+Against the reported 11/28 = 39.29% inventory, these remove two denominator
+entries only; the numerator remains 11. WorkflowPage still counts as one
+consuming page, not three routes. No counting rule changed.
+
 Excluded: App, AppShell (shell infrastructure), AuthProvider/AuthBoundary,
 RouteFocus, RecordEntry, WorkflowRoute, all hooks, API types/classes, tests,
 React fragments and native HTML elements. `src/ui/index.tsx` is a barrel, not

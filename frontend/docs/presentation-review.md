@@ -20,6 +20,10 @@ InvestigationSummary and AssociatedActionList were previously inline page JSX.
 They are now named, documented exports used by WorkflowPage; their extraction
 does not introduce another data owner or domain layer.
 
+The audit-trail correction renders `Owner: {action.owner_ref}` directly from
+saved action data. It does not resolve ownership through the currently
+assignable-user list, so historical owners remain visible.
+
 ## Responsibility trace
 
 `main.tsx` → `App` routes → `WorkflowRoute`/`WorkflowPage` → these views.

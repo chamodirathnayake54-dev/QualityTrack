@@ -7,24 +7,19 @@ import { lookupFields, severities, statuses } from './validation';
 import { useDefectList } from './useDefectList';
 import { plantTimeLabel } from './plantTime';
 
-function DateFilters({ start, end }: { start: string; end: string }) {
-  const [startDate, setStartDate] = useState(start);
-  const [endDate, setEndDate] = useState(end);
-  const error = startDate && endDate && startDate > endDate
-    ? 'End date must be on or after the start date' : undefined;
-  return <>
-    <Field label="Start date">{(props) => <DateInput {...props} name="start_date" value={startDate}
-      max={endDate || undefined} onChange={(event) => setStartDate(event.target.value)} />}</Field>
-    <Field label="End date" error={error}>{(props) => <DateInput {...props} name="end_date" value={endDate}
-      min={startDate || undefined} onChange={(event) => setEndDate(event.target.value)} />}</Field>
-  </>;
-}
-
 // PUBLIC_INTERFACE
 export function DefectListPage() {
   /** Present live permitted records; lookup denial never hides readable list results. */
   const controller = useDefectList();
   const { query, params } = controller;
+  const filterKey = params.toString();
+  const [dates, setDates] = useState({ key: filterKey, start: params.get('start_date') ?? '', end: params.get('end_date') ?? '' });
+  // URL changes reset the draft just as the formerly keyed date component did.
+  const currentDates = dates.key === filterKey ? dates
+    : { key: filterKey, start: params.get('start_date') ?? '', end: params.get('end_date') ?? '' };
+  if (dates.key !== filterKey) setDates(currentDates);
+  const dateError = currentDates.start && currentDates.end && currentDates.start > currentDates.end
+    ? 'End date must be on or after the start date' : undefined;
   return <section className="space-y-6">
     <h1 tabIndex={-1}>Defects</h1>
     {controller.canCapture && <Link to="/defects/new">Log defect</Link>}
@@ -51,7 +46,10 @@ export function DefectListPage() {
               {lookup.data.items.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
             </Select>}</Field> : null;
         })}
-        <DateFilters start={params.get('start_date') ?? ''} end={params.get('end_date') ?? ''} />
+        <Field label="Start date">{(props) => <DateInput {...props} name="start_date" value={currentDates.start}
+          max={currentDates.end || undefined} onChange={(event) => setDates({ ...currentDates, start: event.target.value })} />}</Field>
+        <Field label="End date" error={dateError}>{(props) => <DateInput {...props} name="end_date" value={currentDates.end}
+          min={currentDates.start || undefined} onChange={(event) => setDates({ ...currentDates, end: event.target.value })} />}</Field>
         <Field label="Page size" error={controller.errors.limit}>{(props) =>
           <TextInput {...props} name="limit" type="number" min={1} max={100} step={1} defaultValue={params.get('limit') ?? '50'} />}</Field>
       </div>

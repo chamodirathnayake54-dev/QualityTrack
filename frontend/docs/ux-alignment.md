@@ -16,6 +16,12 @@ the original mockup rather than silently removing it from the denominator.
 **Result: 36/40 = 90% alignment**, meeting the proposal's requested 90% review
 target under this rubric only. Approval remains with the requester.
 
+The audit-trail correction restores `Changed by {entry.actor_ref}` in
+WorkflowPage and `Owner: {action.owner_ref}` in AssociatedActionList.
+These restore the attributable-history and retained-action-fields checks
+deducted in the reported 34/40 = 85% review. The forty-check denominator
+and all other scores remain unchanged.
+
 ## Checklist
 
 | Screen | Checks matched | Differences | Score |
@@ -35,9 +41,9 @@ target under this rubric only. Approval remains with the requester.
 - S3 adds an explicit reviewed-context checkbox and refresh control for ETag
   safety. Its history appears above the request form. These are recorded
   hierarchy additions, not fabricated backend requirements.
-- S4 owner references, rather than resolved display names, are retained in the
-  associated list. The owner selector uses server display names. This is less
-  friendly but unambiguous; identity-name enrichment is not invented.
+- S4 saved-owner usernames use the friendly label “Owner:”; history actors use
+  “Changed by”. The owner selector uses server display names. Saved ownership
+  does not depend on whether the user remains currently assignable.
 - Memory-only authentication is approved and explained on login.
 - Photo-free messaging is explicit and there is no misleading upload control.
   Optional-photo US-02 acceptance is not claimed.

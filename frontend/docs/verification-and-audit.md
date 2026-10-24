@@ -1,5 +1,46 @@
 # Batch 4 verification and dependency audit
 
+## Audit-trail correction verification
+
+This section supersedes historical verification totals below for this correction.
+The current branch is `polish/frontend-usability-20261024`; the actual starting
+HEAD was `85c1dc5`, differing from the supplied prior-session summary.
+`git merge-base --is-ancestor e0a24dc HEAD` exited 0.
+
+Classification: repository implementation defect in presentation. Backend
+`workflow.py` projects `actor_ref` and `owner_ref`; WorkflowPage omitted the
+actor and AssociatedActionList omitted the owner. The correction renders
+`Changed by {entry.actor_ref}` and `Owner: {action.owner_ref}` without changing
+contracts, grants, queries or saved state. Record UUIDs remain hidden in text.
+Focused routed tests cover both labels, hidden UUIDs, historical owners absent
+from assignable choices, and inline journey progress/accessibility.
+
+DateFilters and Journey are now inline page presentation, not distinct
+components. Using the unchanged inventory method gives **11/26 = 42.31% reuse**.
+The unchanged S1–S4 rubric gives **36/40 = 90% UX alignment**. Both meet target.
+
+Fresh commands ran from `frontend/` using
+`npm exec --yes --package=node@22.23.4 --package=npm@10.8.2 -- <command>`:
+
+| Command | Result |
+| --- | --- |
+| `npm test` with `CI=true` | **105 tests passed across 6 files** |
+| `npx --no-install tsc --noEmit` | **Passed** |
+| `npm run test:e2e` with `CI=true` | **2 passed**, desktop and mobile mocked Chromium suites, no retries |
+
+The first unit invocation failed because the WorkflowPage patch had not
+applied, and existing polish tests expected badge classes and decorative alert
+icons absent from the actual worktree. The patch was corrected and those narrow
+presentation expectations restored; only the subsequent complete run is a pass.
+
+Lint remains unavailable (no lint script). Real-stack automated verification
+remains blocked by the previously documented services/QA07 configuration;
+the requester's manual real-stack verification remains pending. Mocked browser
+passes are not backend/database integration or accessibility certification.
+Dependency findings below remain open; dependency files were not changed.
+The requester authorized a correction commit and non-force push, not release
+or pilot acceptance.
+
 ## Scope and prerequisite
 
 The Batch 4 sections below retain the earlier verification record. See

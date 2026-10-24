@@ -1,7 +1,12 @@
 # Batch 4 review reports
 
-Scope: frontend polish and evidence only, based on Batch 3 `e5c9fe8`.
-No commit, push, release approval or pilot authorization is included.
+Scope: frontend polish, audit-trail correction and evidence.
+Current figures: **42.31% component reuse (11/26)** and **90% UX alignment
+(36/40)**, meeting the unchanged 40% and 90% targets.
+The requester authorized committing and non-force pushing this correction.
+Lint remains unavailable; real-stack automated verification remains blocked,
+with the requester's manual verification pending. No release approval or pilot
+authorization is implied.
 
 - [UX alignment](ux-alignment.md): S1–S4 comparison and percentage.
 - [Component reuse](component-reuse.md): approved method and inventory.

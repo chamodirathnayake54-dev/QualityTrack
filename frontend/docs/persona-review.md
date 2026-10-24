@@ -29,7 +29,8 @@ permitted caller, not automatic authority from a persona name.
 Photo evidence is unavailable (approved); this may limit shop-floor usefulness
 but is not simulated. Memory-only sessions require sign-in after reload and
 drafts are not persistent; login states this, but navigating away can still lose
-work. Owner references in saved actions are less readable than display names.
+work. Saved owner usernames now use “Owner:” and history actors “Changed by”,
+preserving attribution without exposing internal record UUIDs as visible text.
 The journey navigation is exposed before a cause is saved; entering the next
 screen is safe, but only server rejection establishes the actual gate.
 
