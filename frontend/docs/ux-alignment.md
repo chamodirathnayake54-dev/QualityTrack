@@ -69,3 +69,12 @@ No WCAG 2.2 AA certification is claimed. See [verification](verification-and-aud
 The supervisor summary page is outside the S1–S4 mockup set, so the 36/40 = 90%
 alignment is unchanged. The shared history list keeps the S3 attributable-history
 check (old/new status, timestamp, actor) satisfied.
+
+## DEV-10 note
+
+The audit report panel (Export audit PDF button, progress text, photo note, outcome
+message) is an addition outside the S1–S4 mockups. It does not remove or replace any
+mockup element, so the 36/40 = 90% alignment is unchanged. The deviation is listed
+here because S2–S4 now carry one extra panel under the defect context. For read-only
+users the button uses the primary style; for users who can change the record it is
+secondary so the page's main action stays the next workflow step.

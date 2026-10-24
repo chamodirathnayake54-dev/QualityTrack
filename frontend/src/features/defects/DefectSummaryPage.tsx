@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { Action } from '../../api/workflow';
 import { Alert, Button, Field, TextArea } from '../../ui';
+import { AuditExport } from './AuditExport';
 import { ReadFeedback } from './ReadFeedback';
 import { DefectContextSummary, EventList, WorkflowCollection } from './WorkflowViews';
 import { useActionSummary, useDefectSummary, useTransition, type TransitionOptions } from './useTransition';
@@ -67,6 +68,7 @@ export function DefectSummaryPage() {
       error={record.parent.error} empty={false} retry={() => { void s.refresh(); }} />
     {record.parent.isSuccess && defect && <>
       <DefectContextSummary defect={defect} />
+      <AuditExport record={record} />
       <section className="panel" aria-label="Defect details">
         <h2>Defect details</h2>
         <p>Quantity affected: {defect.quantity_affected}</p>

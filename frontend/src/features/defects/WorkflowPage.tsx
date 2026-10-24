@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Alert, Button, DateInput, EmptyState, ErrorSummary, Field, Select, TextArea } from '../../ui';
 import { useWorkflow } from './useWorkflow';
+import { AuditExport } from './AuditExport';
 import { ReadFeedback } from './ReadFeedback';
 import { AssociatedActionList, DefectContextSummary, EventList, InvestigationSummary, WorkflowCollection } from './WorkflowViews';
 import { actionStatuses, type ActionDraft, type Owner } from './workflowValidation';
@@ -98,6 +99,7 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
     </nav>
     {w.parent.isSuccess && !w.parent.isFetching && <>
       <DefectContextSummary defect={w.parent.data.data} />
+      <AuditExport record={w} />
       {(kind === 'causes' || kind === 'investigation') && <WorkflowCollection title="Recorded causes"
         empty={kind === 'investigation' ? 'No recorded cause. Record a cause before starting investigation' : 'No cause recorded yet'} query={w.causes}>
         <ul>{w.causes.data?.pages.flatMap((page) => page.items).map((cause) =>

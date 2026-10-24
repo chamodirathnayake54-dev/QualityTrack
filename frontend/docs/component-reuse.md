@@ -44,6 +44,7 @@ W = WorkflowPage, S = DefectSummaryPage, N = NotFoundPage.
 | EventList | W (status history), S (defect and action history) | Yes |
 | TransitionControl | S | No |
 | ActionCard | S | No |
+| AuditExport | W (cause, investigation and action routes), S | Yes |
 | LoginPage | Page presentation itself | No |
 | DefectListPage | Page presentation itself | No |
 | LogDefectPage | Page presentation itself | No |
@@ -51,7 +52,7 @@ W = WorkflowPage, S = DefectSummaryPage, N = NotFoundPage.
 | DefectSummaryPage | Page presentation itself | No |
 | NotFoundPage | Page presentation itself | No |
 
-**15 / 30 × 100 = 50.00%**, meeting the delivery target of at least 40%.
+**16 / 31 × 100 = 51.61%**, meeting the delivery target of at least 40%.
 
 The audit-trail correction folds the single-use DateFilters controls into
 DefectListPage and the journey markup into WorkflowPage. The standalone
@@ -87,3 +88,12 @@ Counting rules are unchanged: the denominator grows from 26 to 30 and the numera
 from 11 to 15. TransitionControl and ActionCard are single-use and are not counted
 as reused. Saving, validation and review rules live in `useTransition.ts`
 (hooks, excluded from this inventory), so the components only present.
+
+## Audit PDF export update (DEV-10)
+
+DEV-10 adds one presentation component, AuditExport, consumed by WorkflowPage
+(one consuming page, three routes) and DefectSummaryPage, so it counts as reused.
+The denominator grows from 30 to 31 and the numerator from 15 to 16. Button gained
+a `variant` option rather than a new component. The download rules live in
+`useAuditExport.ts` (a hook, excluded from this inventory); AuditExport only presents.
+Counting rules are unchanged.

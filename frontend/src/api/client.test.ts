@@ -130,4 +130,14 @@ describe('API client', () => {
     const client = new ApiClient('/api/v1', transport);
     await expect(client.request('/me', { signal: controller.signal })).rejects.toMatchObject({ name: 'AbortError' });
   });
+
+  it('downloads a binary file with a PDF accept header when asked for a blob', async () => {
+    const transport = vi.fn<typeof fetch>(async () => new Response('%PDF', { status: 200, headers: { 'Content-Type': 'application/pdf' } }));
+    const client = new ApiClient('/api/v1', transport);
+    const { data } = await client.request<Blob>('/defects/a/audit.pdf', { responseType: 'blob' });
+    expect(data.size).toBe(4);
+    expect(data.type).toBe('application/pdf');
+    expect(await data.text()).toBe('%PDF');
+    expect(new Headers(transport.mock.calls[0][1]?.headers).get('Accept')).toBe('application/pdf');
+  });
 });

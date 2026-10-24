@@ -70,6 +70,8 @@
     @apply border-primary bg-primary text-white;
   }
   .ui-button[type="submit"]:hover:not(:disabled) { @apply bg-primary-hover; }
+  .ui-button-primary { @apply border-primary bg-primary text-white; }
+  .ui-button-primary:hover:not(:disabled) { @apply bg-primary-hover; }
   .ui-button:disabled { @apply cursor-not-allowed border-border bg-slate-100 text-muted; }
   .ui-button[aria-busy="true"] { cursor: wait; }
   .journey { @apply flex flex-wrap gap-3; }
