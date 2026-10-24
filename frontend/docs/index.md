@@ -1,7 +1,13 @@
 # Batch 4 review reports
 
-Scope: frontend polish and evidence only, based on Batch 3 `e5c9fe8`.
-No commit, push, release approval or pilot authorization is included.
+Scope: frontend polish and evidence, updated after commit `89f1144`.
+Current static-review figures are **39.29% component reuse (11/28)** and
+**85% S1–S4 UX alignment (34/40)**, below the existing 40% and 90% targets.
+The requester has authorized the documentation commit and non-force push.
+Lint and real-stack automated verification remain blocked, and the header role
+label is unavailable. The requester will verify the real-stack journey manually
+on their own machine; that verification remains pending. No release approval or
+pilot authorization is implied.
 
 - [UX alignment](ux-alignment.md): S1–S4 comparison and percentage.
 - [Component reuse](component-reuse.md): approved method and inventory.

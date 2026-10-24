@@ -41,13 +41,24 @@ W = WorkflowPage, N = NotFoundPage.
 | AssociatedActionList | W | No |
 | DefectContextSummary | W | No |
 | WorkflowCollection | W | No |
+| DateFilters | D | No |
+| Journey | W | No |
 | LoginPage | Page presentation itself | No |
 | DefectListPage | Page presentation itself | No |
 | LogDefectPage | Page presentation itself | No |
 | WorkflowPage | Page presentation itself | No |
 | NotFoundPage | Page presentation itself | No |
 
-**11 / 26 × 100 = 42.31%**, exceeding the delivery target of at least 40%.
+**11 / 28 × 100 = 39.29%**, below the delivery target of at least 40%.
+
+This post-polish measurement reviews commit
+`89f11449d44ded85f485852fedd90303e8db4a8b`. The previous 42.31% figure omitted
+the page-local `DateFilters` presentation component and predates the new
+`Journey` component. Both belong in the denominator, but neither is consumed
+by two distinct page components. Journey appears on S2–S4 through the single
+`WorkflowPage`; three routes do not make it cross-page reuse. The numerator
+remains 11. Styling improvements do not change that count, and no artificial
+sharing is introduced to meet the target.
 
 Excluded: App, AppShell (shell infrastructure), AuthProvider/AuthBoundary,
 RouteFocus, RecordEntry, WorkflowRoute, all hooks, API types/classes, tests,
