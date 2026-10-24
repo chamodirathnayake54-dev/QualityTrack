@@ -81,7 +81,9 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
     <nav aria-label="Defect journey" className="space-y-3">
       <Link to={link}>Back to defect</Link>
       <ol className="journey">
-        {steps.map((step, index) => <li key={step.key}>
+        {steps.filter((step) => w.identity?.permissions.includes(
+          step.key === 'causes' ? 'cause.create' : step.key === 'investigation' ? 'defect.investigate' : 'action.assign',
+        )).map((step, index) => <li key={step.key}>
           <Link to={step.href} aria-label={step.label}
             aria-describedby={step.key === kind || step.complete ? `journey-${step.key}` : undefined}
             aria-current={step.key === kind ? 'step' : undefined}>

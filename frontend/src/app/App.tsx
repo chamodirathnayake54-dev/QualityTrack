@@ -6,6 +6,7 @@ import { Button, Skeleton } from '../ui';
 import { DefectListPage } from '../features/defects/DefectListPage';
 import { LogDefectPage } from '../features/defects/LogDefectPage';
 import { WorkflowPage } from '../features/defects/WorkflowPage';
+import { DefectSummaryPage } from '../features/defects/DefectSummaryPage';
 import { plantTimeLabel } from '../features/defects/plantTime';
 
 function RouteFocus() {
@@ -42,11 +43,16 @@ function AppShell() {
 
 function RecordEntry() {
   const { defectId } = useParams();
-  return <Navigate to={`/defects/${encodeURIComponent(defectId ?? '')}/causes`} replace />;
+  return <DefectSummaryPage key={defectId} />;
 }
 
 function WorkflowRoute({ kind }: { kind: 'causes' | 'investigation' | 'actions' }) {
   const { defectId } = useParams();
+  const { identity } = useAuth();
+  const permission = kind === 'causes' ? 'cause.create' : kind === 'investigation' ? 'defect.investigate' : 'action.assign';
+  if (!identity?.permissions.includes(permission)) {
+    return <Navigate to={`/defects/${encodeURIComponent(defectId ?? '')}`} replace />;
+  }
   return <WorkflowPage key={`${defectId}/${kind}`} kind={kind} />;
 }
 
