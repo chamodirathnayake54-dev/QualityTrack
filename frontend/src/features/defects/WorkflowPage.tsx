@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Alert, Button, DateInput, EmptyState, ErrorSummary, Field, Select, TextArea } from '../../ui';
 import { useWorkflow } from './useWorkflow';
 import { ReadFeedback } from './ReadFeedback';
-import { AssociatedActionList, DefectContextSummary, InvestigationSummary, WorkflowCollection } from './WorkflowViews';
+import { AssociatedActionList, DefectContextSummary, EventList, InvestigationSummary, WorkflowCollection } from './WorkflowViews';
 import { actionStatuses, type ActionDraft, type Owner } from './workflowValidation';
 import type { Errors } from './validation';
 
@@ -81,7 +81,9 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
     <nav aria-label="Defect journey" className="space-y-3">
       <Link to={link}>Back to defect</Link>
       <ol className="journey">
-        {steps.map((step, index) => <li key={step.key}>
+        {steps.filter((step) => w.identity?.permissions.includes(
+          step.key === 'causes' ? 'cause.create' : step.key === 'investigation' ? 'defect.investigate' : 'action.assign',
+        )).map((step, index) => <li key={step.key}>
           <Link to={step.href} aria-label={step.label}
             aria-describedby={step.key === kind || step.complete ? `journey-${step.key}` : undefined}
             aria-current={step.key === kind ? 'step' : undefined}>
@@ -108,11 +110,7 @@ export function WorkflowPage({ kind }: { kind: 'causes' | 'investigation' | 'act
       </form>}
       {kind === 'investigation' && <>
         <WorkflowCollection title="Status history" empty="No status history yet" query={w.history}>
-          <ul>{w.history.data?.pages.flatMap((page) => page.items).map((entry) =>
-            <li key={entry.id}>{entry.old_status} → {entry.new_status} ·
-              {' '}{new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long', timeZone: w.identity?.plant_zone }).format(new Date(entry.occurred_at))}
-              {' · '}Changed by {entry.actor_ref}
-            </li>)}</ul>
+          <EventList events={w.history.data?.pages.flatMap((page) => page.items) ?? []} zone={w.identity?.plant_zone} />
         </WorkflowCollection>
         <form className="panel space-y-4" noValidate onSubmit={(event) => { event.preventDefault(); void w.submit(); }}>
           {w.investigationReached ? <p>This defect is Under Investigation. You can add a corrective action next.</p> : <InvestigationSummary />}

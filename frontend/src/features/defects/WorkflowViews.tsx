@@ -1,8 +1,22 @@
 import type { ReactNode } from 'react';
 import type { Defect } from '../../api/defects';
-import type { Action } from '../../api/workflow';
+import type { Action, DefectEvent } from '../../api/workflow';
 import { Button, EmptyState, StatusBadge } from '../../ui';
 import { ReadFeedback } from './ReadFeedback';
+
+// PUBLIC_INTERFACE
+export function EventList({ events, zone }: {
+  events: (DefectEvent & { completion_notes?: string | null; reopen_reason?: string | null })[];
+  zone?: string;
+}) {
+  /** Present immutable history with attribution, plant-zone time and optional action evidence. */
+  return <ul className="space-y-2">{events.map((entry) => <li key={entry.id}>
+    {entry.old_status ?? 'Created'} → {entry.new_status} · Changed by {entry.actor_ref} ·{' '}
+    {new Intl.DateTimeFormat(undefined, { dateStyle: 'medium', timeStyle: 'long', timeZone: zone }).format(new Date(entry.occurred_at))}
+    {entry.completion_notes && <p>Completion notes: {entry.completion_notes}</p>}
+    {entry.reopen_reason && <p>Reason for reopening: {entry.reopen_reason}</p>}
+  </li>)}</ul>;
+}
 
 // PUBLIC_INTERFACE
 export function InvestigationSummary() {

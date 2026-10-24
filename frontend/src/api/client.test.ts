@@ -13,7 +13,9 @@ describe('API client', () => {
     [412, 'precondition_failed', 'Someone else updated this defect. We loaded the latest details. Please check them and try again.'],
     [428, 'precondition_required', 'Please tick the box to confirm you have checked the latest details, then try again.'],
     [400, 'invalid_cursor', 'Something went wrong with this request. We reloaded the page, please try again.'],
-    [499, 'unknown', 'Original fallback'],
+    [499, 'unknown', 'The request could not complete. Please try again later.'],
+    [500, 'internal_error', 'The request could not complete. Please try again later.'],
+    [502, 'proxy_error', 'The request could not complete. Please try again later.'],
   ])('translates %s %s without changing backend text', (status, code, expected) => {
     const problem = { status: Number(status), code: String(code), title: 'Original fallback' };
     expect(friendlyProblem(problem)).toBe(expected);
@@ -72,7 +74,17 @@ describe('API client', () => {
 
   it('never renders raw non-Problem response bodies', async () => {
     const client = new ApiClient('/api/v1', vi.fn<typeof fetch>().mockResolvedValue(new Response('<script>secret</script>', { status: 500 })));
-    await expect(client.request('/resource')).rejects.toMatchObject({ message: 'The request could not complete.' });
+    await expect(client.request('/resource')).rejects.toMatchObject({ message: 'The request could not complete. Please try again later.' });
+  });
+
+  it('keeps unknown server metadata for diagnostics without displaying it', async () => {
+    const problem = { status: 500, code: 'unknown', title: 'Internal database exception' };
+    const client = new ApiClient('/api/v1', vi.fn<typeof fetch>().mockResolvedValue(new Response(JSON.stringify(problem), {
+      status: 500, headers: { 'Content-Type': 'application/problem+json' },
+    })));
+    await expect(client.request('/resource')).rejects.toMatchObject({
+      problem, message: 'The request could not complete. Please try again later.',
+    });
   });
 
   it('clears the session on authenticated 401, but not anonymous login rejection', async () => {

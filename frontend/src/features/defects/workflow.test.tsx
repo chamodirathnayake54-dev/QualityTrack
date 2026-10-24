@@ -26,7 +26,8 @@ async function mount(kind: string, handle?: (url: string, init?: RequestInit) =>
   const transport = vi.fn<typeof fetch>(async (url, init) => {
     const path = String(url);
     if (path.endsWith('/auth/login')) return response({ access_token: 't', token_type: 'bearer', expires_in: 3600 });
-    if (path.endsWith('/me')) return response({ ref: 'u1', display_name: 'Engineer', plant_zone: 'UTC', permissions: [], scope: 'plant' });
+    if (path.endsWith('/me')) return response({ ref: 'u1', display_name: 'Engineer', plant_zone: 'UTC',
+      permissions: ['defect.read', 'cause.create', 'defect.investigate', 'action.assign', 'action.complete'], scope: 'plant' });
     const custom = await handle?.(path, init);
     if (custom) return custom;
     if (path.endsWith('/defects/d1')) return response(defect, 200, '"7"');

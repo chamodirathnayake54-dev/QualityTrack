@@ -16,14 +16,14 @@ presentation components themselves in the denominator, conservatively.
 ## Inventory
 
 Page abbreviations: L = LoginPage, D = DefectListPage, C = LogDefectPage,
-W = WorkflowPage, N = NotFoundPage.
+W = WorkflowPage, S = DefectSummaryPage, N = NotFoundPage.
 
 | Presentation component | Consuming pages | Reused |
 | --- | --- | --- |
 | Button | L, D, C, W | Yes |
 | Field | L, D, C via CaptureFields, W via editors | Yes |
 | TextInput | L, D (also DateInput), C | Yes |
-| TextArea | W via editors | No |
+| TextArea | W via editors, S via transition notes | Yes |
 | Select | D, C via CaptureFields, W via action fields | Yes |
 | DateInput | D, W via action fields | Yes |
 | RadioGroup | C via CaptureFields | No |
@@ -39,15 +39,19 @@ W = WorkflowPage, N = NotFoundPage.
 | CorrectiveActionFields | W | No |
 | InvestigationSummary | W | No |
 | AssociatedActionList | W | No |
-| DefectContextSummary | W | No |
-| WorkflowCollection | W | No |
+| DefectContextSummary | W, S | Yes |
+| WorkflowCollection | W, S | Yes |
+| EventList | W (status history), S (defect and action history) | Yes |
+| TransitionControl | S | No |
+| ActionCard | S | No |
 | LoginPage | Page presentation itself | No |
 | DefectListPage | Page presentation itself | No |
 | LogDefectPage | Page presentation itself | No |
 | WorkflowPage | Page presentation itself | No |
+| DefectSummaryPage | Page presentation itself | No |
 | NotFoundPage | Page presentation itself | No |
 
-**11 / 26 × 100 = 42.31%**, meeting the delivery target of at least 40%.
+**15 / 30 × 100 = 50.00%**, meeting the delivery target of at least 40%.
 
 The audit-trail correction folds the single-use DateFilters controls into
 DefectListPage and the journey markup into WorkflowPage. The standalone
@@ -72,3 +76,14 @@ different method and is not substituted here.
 
 The two inline workflow views were named for the requested boundary review,
 not shared artificially across unrelated pages to inflate reuse.
+
+## Supervisor workflows update
+
+DEV-09 adds the DefectSummaryPage (S, one consuming page) and three
+presentation components: EventList, TransitionControl and ActionCard. EventList is
+shared by WorkflowPage and DefectSummaryPage, replacing duplicated history markup.
+TextArea, DefectContextSummary and WorkflowCollection are now also consumed by S.
+Counting rules are unchanged: the denominator grows from 26 to 30 and the numerator
+from 11 to 15. TransitionControl and ActionCard are single-use and are not counted
+as reused. Saving, validation and review rules live in `useTransition.ts`
+(hooks, excluded from this inventory), so the components only present.
